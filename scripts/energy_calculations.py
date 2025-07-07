@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import os
 import pandas as pd
 
@@ -11,13 +12,13 @@ def calculate_average_gpu_energy(task_file):
 
     Returns:
         avg_energy (float): The average energy across all models in Wh per query - converted from KWh/1000 queries 
-        and rounded to two decimal places.
+        and rounded to four decimal places.
     """
     
     file_path = os.path.join(energy_score_dir, task_file)
     df = pd.read_csv(file_path)
     avg_energy = df['total_gpu_energy'].mean()
-    return round((avg_energy * 1000) / 1000, 2) 
+    return round((avg_energy * 1000) / 1000, 4)
 
 
 def find_lowest_energy_model(task_file):
@@ -44,12 +45,12 @@ def calculate_average_emissions_per_energy(carbon_intensity, avg_energy_Wh):
         avg_energy_Wh (_type_): Average energy for a specific task [Wh]
 
     Returns:
-        average_emissions (float): Average emissions [g], rounded to two decimal places.
+        average_emissions (float): Average emissions [g], rounded to four decimal places.
     """
     carbon_factor_per_Wh = carbon_intensity / 1000
     average_emissions = carbon_factor_per_Wh * avg_energy_Wh
     
-    return round(average_emissions, 2)
+    return round(average_emissions, 4)
  
  
 if __name__=='__main__':
