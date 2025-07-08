@@ -15,7 +15,7 @@ space.markdown("<br>", unsafe_allow_html=True)
 st.markdown("""
     <style> 
     div.stButton > button:first-child {
-        background-color: #16A34A;
+        background-color: #66ccff;
         border-radius: 10px;
         width: 240px;
         height: 170px;
@@ -30,9 +30,9 @@ st.markdown("""
         align-items: center;
     }
     div.stButton > button:first-child:hover {
-        background-color: #AFE1AF;
+        background-color: #85d8ff;
         color: black;
-        border: 1px solid #16A34A;
+        border: 1px solid #66ccff;
     }   
     </style>
     """, unsafe_allow_html=True)
