@@ -3,4 +3,6 @@ showSidebarNavigation = false
 
 [theme]
 backgroundColor="#F6FFF5"
-primaryColor="#FFFFFF"
+primaryColor="#6BD0FF"
+secondaryBackgroundColor="#FFFFFF"
+textColor = "#000000"
