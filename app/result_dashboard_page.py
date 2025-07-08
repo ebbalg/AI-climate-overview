@@ -4,7 +4,77 @@ import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from scripts.energy_calculations import (calculate_average_gpu_energy, find_lowest_energy_model, calculate_average_emissions_per_energy)
 
-st.set_page_config(layout="centered")
+if "ai_function" not in st.session_state:
+    st.error("No AI functionality selected. Please go back and complete the form.")
+    st.stop()
+    
+st.set_page_config(layout="wide")
+
+st.markdown("""
+    <style>
+        body {
+            background-color: #F7FFF7;
+        }
+        .block-container {
+            padding-top: 2rem;
+        }
+        .info-card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            text-align: left;
+            height: 180px;
+            width: 90%;
+        }
+        .info-card h4 {
+            margin-bottom: 10px;
+        }
+        .info-card p {
+            margin-bottom: 20px;
+        }
+
+        /* Style Streamlit buttons */
+        div.stButton > button:first-child {
+            background-color: #66ccff;
+            color: black;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        div.stButton > button:first-child:hover {
+            background-color: #4dc3ff;
+        }
+
+        .small-card {
+            background-color: #f9f9f9;
+            border-radius: 10px;
+            padding: 20px;
+            height: 160px;
+        }
+        .small-card h5 {
+            margin: 0 0 10px 0;
+        }
+
+        /* Back button styling */
+        .stButton>button.back {
+            background-color: #66ccff;
+            color: black;
+            border: none;
+            border-radius: 6px;
+            padding: 6px 15px;
+            font-size: 16px;
+        }
+    </style>
+""", unsafe_allow_html=True)
+
+# Back button
+top_col1, _, _ = st.columns([0.1, 0.8, 0.1])
+with top_col1:
+    if st.button("Back", key="back"):
+        st.switch_page("project_query_page.py")
 
 st.markdown(body='<h1 style="text-align: center"> Result dashboard </h1>', unsafe_allow_html=True)
 space = st.empty()
@@ -54,24 +124,22 @@ def custom_metric(label, value, tooltip_text):
 
     st.markdown(html, unsafe_allow_html=True)
     
-    
-# TODO: replace with real user chosen technologies
-ai_functionality_choice = "text_generation"
+ai_functionality_choice = st.session_state["ai_function"] 
 
-if ai_functionality_choice == "text_generation":
+if ai_functionality_choice == "Text generation":
     avg_gpu_energy = calculate_average_gpu_energy("text_generation.csv")
     
-elif ai_functionality_choice == "text_classification":
+elif ai_functionality_choice == "Text classification":
     avg_gpu_energy = calculate_average_gpu_energy("text_classification.csv")
     
-elif ai_functionality_choice == "speech_recognition":
+elif ai_functionality_choice == "Speech recognition":
     avg_gpu_energy = calculate_average_gpu_energy("asr.csv")
 
 
 estimated_emissions = calculate_average_emissions_per_energy(16, avg_gpu_energy)    # TODO: retrieve real-time carbon intensity data?   
     
     
-spacer1, col1, gap, col2 , spacer2 = st.columns([0.1, 1, 0.1, 1, 0.01])
+spacer, col1, col2 = st.columns([0.5, 3, 1])
 
 with col1:
     custom_metric(
@@ -80,12 +148,11 @@ with col1:
         "This number is an average of the GPU Energy field of all models from the AI energy score leaderboard, formulated as watt-hours per query and rounded to four decimals. This energy is just for using the model and does not account for manufacture or training"
     )
     
-with col2:
+    st.markdown("<br>", unsafe_allow_html=True)
+    
     custom_metric(
         "Estimated CO₂ Emissions per query",
         f"{estimated_emissions} g CO2eq",
         "This number is estimated based on the latest carbon intensity factor in the country you have selected, times the average GPU energy that can be found on this page and rounded to four decimals. Note that this is a simplification and that an AI model's energy use can depend on where its data center is located. "
     )
-
-# col1.metric("Estimated energy consumption per query", f"{avg_gpu_energy} Wh", border=True, help="This number is an average of the GPU Energy field of all models from the AI energy score leaderboard, formulated as watt-hours per query.")
-# col2.metric("Estimated CO₂ Emissions per query", "0.2 g CO2eq", border=True)
+    
