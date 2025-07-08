@@ -4,10 +4,6 @@ import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from scripts.energy_calculations import (calculate_average_gpu_energy, find_lowest_energy_model, calculate_average_emissions_per_energy)
 
-if "ai_function" not in st.session_state:
-    st.error("No AI functionality selected. Please go back and complete the form.")
-    st.stop()
-    
 st.set_page_config(layout="wide")
 
 st.markdown("""
@@ -76,9 +72,18 @@ with top_col1:
     if st.button("Back", key="back"):
         st.switch_page("project_query_page.py")
 
-st.markdown(body='<h1 style="text-align: center"> Result dashboard </h1>', unsafe_allow_html=True)
+if "ai_function" not in st.session_state:
+    st.error("No AI functionality selected. Please go back and complete the form.")
+    st.stop()
+
+st.markdown(body='<h1 style="text-align: center"> Climate Impact Overview </h1>', unsafe_allow_html=True)
 space = st.empty()
 space.markdown("<br>", unsafe_allow_html=True)
+
+with st.container(border=True):
+    challenge = st.text_input("Your challenge", f"{st.session_state["challenge"]}")
+    
+    ai_function = st.text_input("Chosen functionality", f"{st.session_state["ai_function"]}")
 
 def custom_metric(label, value, tooltip_text):
     html = f"""
@@ -139,7 +144,7 @@ elif ai_functionality_choice == "Speech recognition":
 estimated_emissions = calculate_average_emissions_per_energy(16, avg_gpu_energy)    # TODO: retrieve real-time carbon intensity data?   
     
     
-spacer, col1, col2 = st.columns([0.5, 3, 1])
+col1, col2 = st.columns([1, 3])
 
 with col1:
     custom_metric(
@@ -156,3 +161,6 @@ with col1:
         "This number is estimated based on the latest carbon intensity factor in the country you have selected, times the average GPU energy that can be found on this page and rounded to four decimals. Note that this is a simplification and that an AI model's energy use can depend on where its data center is located. "
     )
     
+with col2:
+    with st.container(border=True):
+        st.markdown("**Real-time emissions tracker of using our service**", unsafe_allow_html=True)
