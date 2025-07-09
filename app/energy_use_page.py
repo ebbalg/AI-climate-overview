@@ -137,7 +137,7 @@ with col3:
 
 # button navigation
 if energy_query:
-    st.session_state["selected_question"] = "Are there standard benchmarks for evaluating energy efficiency in GenAI systems?"
+    st.session_state["selected_question"] = "Are there standard benchmarks for evaluating energy efficiency in GenAI systems?"  # will not be hardcoded in the future
     st.session_state.pop("user_question", None)  # clear previous custom input
     st.switch_page("energy_result_page.py")
 
