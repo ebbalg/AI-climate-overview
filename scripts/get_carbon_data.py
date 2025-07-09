@@ -5,7 +5,16 @@ import requests
 load_dotenv()
 
 def get_carbon_factor(country):
-    country = country.strip().lower()  # ensure correct format
+    """Get the carbon intensity factor and which date the value is from (according to Nowtricity).
+
+    Args:
+        country (string): the country which the user has inputted.
+
+    Returns:
+        _dict_: a dictorinary with the current carbon intensity in the country [g Co2eq / kWh] and the date in UTC time.
+    """
+    
+    country = country.strip().lower()  # ensure standardized format
     
     url = f"https://www.nowtricity.com/api/current-emissions/{country}/"
     
@@ -27,8 +36,6 @@ def get_carbon_factor(country):
         
         carbon_intensity = response["emissions"]["value"]
         date_utc = response["emissions"]["dateUTC"]
-        
-        carbon_intensity /= 1000   # to get in unit g CO₂eq/Wh
         
         return {
             "carbon_intensity": carbon_intensity,
