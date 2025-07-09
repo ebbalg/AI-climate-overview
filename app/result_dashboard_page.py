@@ -1,8 +1,10 @@
 import streamlit as st
 import os 
 import sys
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from scripts.energy_calculations import (calculate_average_gpu_energy, find_lowest_energy_model, calculate_average_emissions_per_energy)
+from scripts.get_carbon_data import get_carbon_factor
 
 st.set_page_config(layout="wide")
 
@@ -140,25 +142,25 @@ elif ai_functionality_choice == "Text classification":
 elif ai_functionality_choice == "Speech recognition":
     avg_gpu_energy = calculate_average_gpu_energy("asr.csv")
 
+country_emissions_data = get_carbon_factor(st.session_state["location"])
 
-estimated_emissions = calculate_average_emissions_per_energy(16, avg_gpu_energy)    # TODO: retrieve real-time carbon intensity data?   
-    
+estimated_emissions = calculate_average_emissions_per_energy(country_emissions_data["carbon_intensity"], avg_gpu_energy)   
     
 col1, col2 = st.columns([1, 3])
 
 with col1:
     custom_metric(
         "Estimated energy consumption per query",
-        f"{avg_gpu_energy} Wh",
-        "This number is an average of the GPU Energy field of all models from the AI energy score leaderboard, formulated as watt-hours per query and rounded to four decimals. This energy is just for using the model and does not account for manufacture or training"
+        f"{avg_gpu_energy:.4g} Wh",
+        "This number is an average of the GPU Energy field of all models from the AI energy score leaderboard, formulated as watt-hours per query and rounded to four significant digits. This energy is just for using the model and does not account for manufacture or training"
     )
     
     st.markdown("<br>", unsafe_allow_html=True)
     
     custom_metric(
         "Estimated CO₂ Emissions per query",
-        f"{estimated_emissions} g CO2eq",
-        "This number is estimated based on the latest carbon intensity factor in the country you have selected, times the average GPU energy that can be found on this page and rounded to four decimals. Note that this is a simplification and that an AI model's energy use can depend on where its data center is located. "
+        f"{estimated_emissions:.4g} g CO2eq",
+        f"This number is estimated based on the latest carbon intensity factor in {st.session_state["location"]}, times the average GPU energy, rounded to four significant digits. The carbon intensity factor value is from retrieved from Nowtricity, data from UTC date {country_emissions_data["date_utc"]}. Note that this is a simplification and that an AI model's energy use can depend on where its data center is located. "
     )
     
 with col2:
