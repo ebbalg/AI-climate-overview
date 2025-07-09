@@ -83,9 +83,9 @@ space = st.empty()
 space.markdown("<br>", unsafe_allow_html=True)
 
 with st.container(border=True):
-    challenge = st.text_input("Your challenge", f"{st.session_state["challenge"]}")
+    challenge = st.text_input("Your challenge", f"{st.session_state['challenge']}")
     
-    ai_function = st.text_input("Chosen functionality", f"{st.session_state["ai_function"]}")
+    ai_function = st.text_input("Chosen functionality", f"{st.session_state['ai_function']}")
 
 def custom_metric(label, value, tooltip_text):
     html = f"""
@@ -134,17 +134,21 @@ def custom_metric(label, value, tooltip_text):
 ai_functionality_choice = st.session_state["ai_function"] 
 
 if ai_functionality_choice == "Text generation":
-    avg_gpu_energy = calculate_average_gpu_energy("text_generation.csv")
+    csv_file = "text_generation.csv"
     
 elif ai_functionality_choice == "Text classification":
-    avg_gpu_energy = calculate_average_gpu_energy("text_classification.csv")
+    csv_file = "text_classification.csv"
     
 elif ai_functionality_choice == "Speech recognition":
-    avg_gpu_energy = calculate_average_gpu_energy("asr.csv")
+    csv_file = "asr.csv"
+
+
+avg_gpu_energy = calculate_average_gpu_energy(csv_file)
+best_model_obj = find_lowest_energy_model(csv_file)
 
 country_emissions_data = get_carbon_factor(st.session_state["location"])
 
-estimated_emissions = calculate_average_emissions_per_energy(country_emissions_data["carbon_intensity"], avg_gpu_energy)   
+estimated_emissions = calculate_average_emissions_per_energy(country_emissions_data["carbon_intensity"], avg_gpu_energy)  
     
 col1, col2 = st.columns([1, 3])
 
@@ -157,6 +161,13 @@ with col1:
     
     st.markdown("<br>", unsafe_allow_html=True)
     
+    # For faked API data:
+    # custom_metric(
+    #     "Estimated CO₂ Emissions per query",
+    #     f"{estimated_emissions:.4g} g CO2eq",
+    #     "This number is estimated based on the latest carbon intensity factor in Sweden, times the average GPU energy, rounded to four significant digits. The carbon intensity factor value is from retrieved from Nowtricity, data from UTC date 2025-07-09. Note that this is a simplification and that an AI model's energy use can depend on where its data center is located. "
+    # )
+    
     custom_metric(
         "Estimated CO₂ Emissions per query",
         f"{estimated_emissions:.4g} g CO2eq",
@@ -166,3 +177,23 @@ with col1:
 with col2:
     with st.container(border=True):
         st.markdown("**Real-time emissions tracker of using our service**", unsafe_allow_html=True)
+        
+
+st.markdown("<br><br>", unsafe_allow_html=True)
+
+tab1, tab2, tab3 = st.tabs(["Environmental impact", "AI Lifecycle", "Resources & Recommendatioms"])
+
+with tab1:
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.markdown(body='<h3 style="text-align: center"> Energy Score Leaderboard </h3>', unsafe_allow_html=True)
+        
+        with st.container(border=True):
+            st.text(f"According to AI Energy Score, the most energy efficient model for {ai_functionality_choice.lower()} is {best_model_obj['model']}")
+        
+        
+        st.markdown(body='<h3 style="text-align: center"> Comparisons </h3>', unsafe_allow_html=True)
+        
+    with col2:
+        st.markdown(body='<h3 style="text-align: center"> Impact estimation </h3>', unsafe_allow_html=True)
