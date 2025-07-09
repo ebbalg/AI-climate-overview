@@ -26,12 +26,12 @@ def get_carbon_factor(country):
         response = response.json()
         
         carbon_intensity = response["emissions"]["value"]
-        unit = response["emissions"]["unit"]
         date_utc = response["emissions"]["dateUTC"]
+        
+        carbon_intensity /= 1000   # to get in unit g CO₂eq/Wh
         
         return {
             "carbon_intensity": carbon_intensity,
-            "unit": unit,
             "date_utc": date_utc
         }
         
@@ -47,7 +47,7 @@ def get_carbon_factor(country):
 if __name__== "__main__":
     response_dict = get_carbon_factor("Sweden")
     if response_dict:
-        print(f"{response_dict["carbon_intensity"]} {response_dict["unit"]}")
+        print(f"{response_dict["carbon_intensity"]} g CO₂eq/Wh")
         print(f"UTC Date: {response_dict["date_utc"]}")
         
     else:
