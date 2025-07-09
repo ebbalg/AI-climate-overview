@@ -137,11 +137,15 @@ with col3:
 
 # button navigation
 if GHG_query:
+    st.session_state["GHG_selected_question"] = "How does the development of GenAI produce emissions?"  # will not be hardcoded in the future
+    st.session_state.pop("GHG_user_question", None)  # clear previous
     st.switch_page("GHG_result_page.py")
 
 
-st.markdown('<h5 style="text-align: left;font-weight: bold;">I have my own research question</h5>', unsafe_allow_html=True)
-research_query = st.text_input(label="text", placeholder="Enter your own research question here")
+st.markdown('<p style="text-align: left; font-weight: bold; margin-bottom: -5px; font-size: 16px;">I have my own research question</p>', unsafe_allow_html=True)
+GHG_research_query = st.text_input(label="", placeholder="Enter your own research question here")
 
-if research_query:
+if GHG_research_query:
+    st.session_state["GHG_user_question"] = GHG_research_query
+    st.session_state.pop("GHG_selected_question", None)  # clear previous selected question
     st.switch_page("GHG_result_page.py")

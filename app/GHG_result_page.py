@@ -61,7 +61,7 @@ st.markdown("""
 
         /* Custom styling for references card */
         .references-card {
-            background-color: #f9f9f9;
+            background-color: #f0f8ff;
             border-radius: 10px;
             padding: 20px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
@@ -90,6 +90,19 @@ with top_col1:
 
 
 st.markdown('<h1 style="text-align: center;"> GHG Emissions from GenAI </h1>', unsafe_allow_html=True)
+
+
+st.markdown("**Research Question**")
+
+if "GHG_user_question" in st.session_state:
+    st.markdown("> **" + st.session_state["GHG_user_question"] + "**")
+elif "GHG_selected_question" in st.session_state:
+    st.markdown("> **" + st.session_state["GHG_selected_question"] + "**")
+
+
+    
+st.markdown("**Search Query**")
+
 
 col1, col2 = st.columns(2)
 
