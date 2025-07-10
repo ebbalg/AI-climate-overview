@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 import os
 from openai import OpenAI
 
+
 load_dotenv()
 
 api_key = os.getenv("OPENAI_API_KEY")
@@ -12,21 +13,21 @@ api_key = os.getenv("OPENAI_API_KEY")
 with open("app/prompts/emissions_research_prompt.txt", "r", encoding="utf-8") as f:
     prompt = f.read()
 
-client = OpenAI(api_key=api_key)
+@st.cache_data(show_spinner=False)
+def get_questions(prompt_text, api_key):
+    client = OpenAI(api_key=api_key)
+    response = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "user", "content": prompt_text}
+        ],
+        temperature=0.7
+    )
+    raw = response.choices[0].message.content
+    return [line.strip("0123456789. ").strip() for line in raw.strip().split("\n") if line.strip()]
 
-response = client.chat.completions.create(
-    model="gpt-4o",
-    messages=[
-        {"role": "system", "content": "You are a helpful assistant."},
-        {"role": "user", "content": prompt}
-    ],
-    temperature=0.7
-)
-
-#st.write(response.choices[0].message.content)
-
-raw_prompt_output = response.choices[0].message.content
-questions = [line.strip("0123456789. ").strip() for line in raw_prompt_output.strip().split("\n") if line.strip()]
+questions = get_questions(prompt, api_key)
 
 
 st.set_page_config(layout="wide")
@@ -141,12 +142,16 @@ cols = st.columns(3)
 
 for i, question in enumerate(questions[:6]):  # Limit to 6
     with cols[i % 3]:  # Distribute across 3 columns
-        if st.button(question):
+        if st.button(question, key=f"question_{i}"):
             st.session_state["GHG_selected_question"] = question
-            st.session_state.pop("GHG_user_question", None)
-            st.switch_page("GHG_result_page.py")
+            st.session_state["navigate_to_result"] = True
         change_button_style(question, bg_hex="#FFFFFF", txt_hex="black", height="120px")
 
+
+if st.session_state.get("navigate_to_result"):
+    st.session_state.pop("GHG_user_question", None)
+    st.session_state.pop("navigate_to_result")
+    st.switch_page("GHG_result_page.py")
 
 
 st.markdown('<p style="text-align: left; font-weight: bold; margin-bottom: -5px; font-size: 16px;">I have my own research question</p>', unsafe_allow_html=True)

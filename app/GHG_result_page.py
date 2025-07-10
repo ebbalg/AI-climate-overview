@@ -86,6 +86,7 @@ st.markdown("""
 top_col1, _, _ = st.columns([0.1, 0.8, 0.1])
 with top_col1:
     if st.button("Back", key="back"):
+        st.session_state.pop("GHG_selected_question", None)
         st.switch_page("GHG_emissions_page.py")
 
 
