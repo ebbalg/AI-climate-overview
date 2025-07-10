@@ -27,7 +27,8 @@ def get_questions(prompt_text, api_key):
     raw = response.choices[0].message.content
     return [line.strip("0123456789. ").strip() for line in raw.strip().split("\n") if line.strip()]
 
-questions = get_questions(prompt, api_key)
+with st.spinner("Generating Research Questions..."):
+    questions = get_questions(prompt, api_key)
 
 
 st.set_page_config(layout="wide")
