@@ -197,3 +197,40 @@ with tab1:
         
     with col2:
         st.markdown(body='<h3 style="text-align: center"> Impact estimation </h3>', unsafe_allow_html=True)
+
+with tab2:
+    col1, col2, col3, col4 = st.columns(4)
+
+    st.markdown(body= '<h3 style= "text-align: center"> The Lifecycle of GenAI models </h3>', unsafe_allow_html = True)
+    
+    with col1:
+        with st.container(border=True):
+            st.markdown(body='<h3 style="text-align: center"> Development </h3>', unsafe_allow_html=True)
+            st.markdown('<p style="text-align: center; font-size: 14px; font-weight: normal;">'
+            'Building AI infrastructure, such as hardware components and grid connection, requires natural resources and transportation.'
+            '</p>', unsafe_allow_html = True)
+    
+    with col2:
+        with st.container(border=True):
+            st.markdown(body='<h3 style="text-align: center"> Training </h3>', unsafe_allow_html=True)
+            st.markdown('<p style="text-align: center; font-size: 14px; font-weight: normal;">'
+            'Building AI infrastructure, such as hardware components and grid connection, requires natural resources and transportation.'
+            '</p>', unsafe_allow_html = True)
+    
+
+    with col3:
+        with st.container(border=True):
+            st.markdown(body='<h3 style="text-align: center"> Inference </h3>', unsafe_allow_html=True)
+            st.markdown('<p style="text-align: center; font-size: 14px; font-weight: normal;">'
+            'Building AI infrastructure, such as hardware components and grid connection, requires natural resources and transportation.'
+            '</p>', unsafe_allow_html = True)
+
+    with col4:
+        with st.container(border=True):
+            st.markdown(body='<h3 style="text-align: center"> Retirement </h3>', unsafe_allow_html=True)
+            st.markdown('<p style="text-align: center; font-size: 14px; font-weight: normal;">'
+            'Building AI infrastructure, such as hardware components and grid connection, requires natural resources and transportation.'
+            '</p>', unsafe_allow_html = True)
+    
+    
+
