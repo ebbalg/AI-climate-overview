@@ -34,6 +34,20 @@ def find_lowest_energy_model(task_file):
     best_model = df.loc[df['total_gpu_energy'].idxmin()]
     
     return best_model
+
+
+def compare_with_average(model_obj, avg_gpu_energy):
+    model_gpu_energy = (model_obj['total_gpu_energy'] * 1000) / 1000
+    
+    return round(avg_gpu_energy / model_gpu_energy)
+
+def get_comparison_df(model_obj, avg_gpu_energy):
+    comparison_data = pd.DataFrame({
+            "Model": [model_obj["model"], "Leaderboard average"],
+            "Energy (Wh)": [model_obj["total_gpu_energy"], avg_gpu_energy]
+    })
+    
+    return comparison_data
     
 
 def calculate_average_emissions_per_energy(carbon_intensity, avg_energy_Wh):
@@ -50,12 +64,21 @@ def calculate_average_emissions_per_energy(carbon_intensity, avg_energy_Wh):
     average_emissions = carbon_factor_per_Wh * avg_energy_Wh
     
     return average_emissions
- 
+
  
 if __name__=='__main__':
-    print(find_lowest_energy_model("text_generation.csv"))
+    best_model_obj = find_lowest_energy_model("text_generation.csv")
+    print(best_model_obj)
 
-    print(calculate_average_gpu_energy("text_generation.csv"))
+    avg_gpu_energy = calculate_average_gpu_energy("text_generation.csv")
+    print("Best energy: ", best_model_obj["total_gpu_energy"])
+    print("Average energy: ", avg_gpu_energy)
+    
+    print(compare_with_average(best_model_obj, avg_gpu_energy))
+    
+    print(get_comparison_df(best_model_obj, avg_gpu_energy))
+    
+    
 
 
 
