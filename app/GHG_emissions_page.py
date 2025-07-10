@@ -1,5 +1,32 @@
 import streamlit as st
 import streamlit.components.v1 as components
+from dotenv import load_dotenv
+import os
+from openai import OpenAI
+
+load_dotenv()
+
+api_key = os.getenv("OPENAI_API_KEY")
+
+# reading prompt from a file
+with open("app/prompts/emissions_research_prompt.txt", "r", encoding="utf-8") as f:
+    prompt = f.read()
+
+client = OpenAI(api_key=api_key)
+
+response = client.chat.completions.create(
+    model="gpt-4o",
+    messages=[
+        {"role": "system", "content": "You are a helpful assistant."},
+        {"role": "user", "content": prompt}
+    ],
+    temperature=0.7
+)
+
+#st.write(response.choices[0].message.content)
+
+raw_prompt_output = response.choices[0].message.content
+questions = [line.strip("0123456789. ").strip() for line in raw_prompt_output.strip().split("\n") if line.strip()]
 
 
 st.set_page_config(layout="wide")
@@ -110,36 +137,16 @@ def change_button_style(
     components.html(htmlstr, height=0, width=0)
 
 
-col1, col2, col3 = st.columns(3)
+cols = st.columns(3)
 
-with col1:
-    GHG_query = st.button("How does the development of GenAI produce emissions?")
-    change_button_style("How does the development of GenAI produce emissions?", bg_hex="#FFFFFF", txt_hex="black", height="120px")
-    
-    st.button("Can techniques like model pruning, quantization, or distillation meaningfully reduce emissions without compromising output quality?")
-    change_button_style("Can techniques like model pruning, quantization, or distillation meaningfully reduce emissions without compromising output quality?", bg_hex="#FFFFFF", txt_hex="black", height="120px")
+for i, question in enumerate(questions[:6]):  # Limit to 6
+    with cols[i % 3]:  # Distribute across 3 columns
+        if st.button(question):
+            st.session_state["GHG_selected_question"] = question
+            st.session_state.pop("GHG_user_question", None)
+            st.switch_page("GHG_result_page.py")
+        change_button_style(question, bg_hex="#FFFFFF", txt_hex="black", height="120px")
 
-with col2:
-    st.button("What stage of the lifecycle is the most carbon intense?")
-    change_button_style("What stage of the lifecycle is the most carbon intense?", bg_hex="#FFFFFF", txt_hex="black", height="120px")
-
-    st.button("How does model architecture (e.g., transformer vs. diffusion models) impact carbon emissions during training and inference?")
-    change_button_style("How does model architecture (e.g., transformer vs. diffusion models) impact carbon emissions during training and inference?", bg_hex="#FFFFFF", txt_hex="black", height="120px")
-
-
-with col3:
-    st.button("What are some commonly used methods for measuring carbon emissions from GenAI systems?")
-    change_button_style("What are some commonly used methods for measuring carbon emissions from GenAI systems?", bg_hex="#FFFFFF", txt_hex="black", height="120px")
-    
-    st.button("To what extent can carbon-aware workload scheduling reduce emissions from GenAI usage?")
-    change_button_style("To what extent can carbon-aware workload scheduling reduce emissions from GenAI usage?", bg_hex="#FFFFFF", txt_hex="black", height="120px")
-
-
-# button navigation
-if GHG_query:
-    st.session_state["GHG_selected_question"] = "How does the development of GenAI produce emissions?"  # will not be hardcoded in the future
-    st.session_state.pop("GHG_user_question", None)  # clear previous
-    st.switch_page("GHG_result_page.py")
 
 
 st.markdown('<p style="text-align: left; font-weight: bold; margin-bottom: -5px; font-size: 16px;">I have my own research question</p>', unsafe_allow_html=True)
