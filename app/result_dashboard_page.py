@@ -1,9 +1,10 @@
 import streamlit as st
 import os 
 import sys
+import altair as alt
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from scripts.energy_calculations import (calculate_average_gpu_energy, find_lowest_energy_model, calculate_average_emissions_per_energy)
+from scripts.energy_calculations import (calculate_average_gpu_energy, find_lowest_energy_model, compare_with_average, get_comparison_df, calculate_average_emissions_per_energy)
 from scripts.get_carbon_data import get_carbon_factor
 
 st.set_page_config(layout="wide")
@@ -190,10 +191,30 @@ with tab1:
         st.markdown(body='<h3 style="text-align: center"> Energy Score Leaderboard </h3>', unsafe_allow_html=True)
         
         with st.container(border=True):
-            st.text(f"According to AI Energy Score, the most energy efficient model for {ai_functionality_choice.lower()} is {best_model_obj['model']}")
+            st.markdown(f"According to AI Energy Score, the most energy efficient model for {ai_functionality_choice.lower()} is {best_model_obj['model']}. \n \
+                Compared to the average GPU energy on the AI Energy Score Leaderboard, this model is around {compare_with_average(best_model_obj, avg_gpu_energy)}x more energy efficient \
+                    <a href='https://huggingface.co/spaces/AIEnergyScore/Leaderboard'>[See the leaderboard here]</a>", unsafe_allow_html=True)
         
         
         st.markdown(body='<h3 style="text-align: center"> Comparisons </h3>', unsafe_allow_html=True)
+        st.markdown("<br><br>", unsafe_allow_html=True)
+        
+        comparison_data = get_comparison_df(best_model_obj, avg_gpu_energy)
+        
+        bar_chart = (
+            alt.Chart(comparison_data)
+            .mark_bar()
+            .encode(
+                x=alt.X("Energy (Wh):Q", title="Total Energy (Wh)"),     # Q for quantitative
+                y=alt.Y("Model:N", sort="-x", title=""),                 # N for nominal
+                color=alt.Color("Model:N", legend=None),
+                tooltip=["Model", "Energy (Wh)"]
+            )
+            .properties(height=200, width=300)
+        )
+
+        st.altair_chart(bar_chart, use_container_width=True)
+        
         
     with col2:
         st.markdown(body='<h3 style="text-align: center"> Impact estimation </h3>', unsafe_allow_html=True)
