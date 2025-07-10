@@ -198,23 +198,27 @@ with tab1:
     with col2:
         st.markdown(body='<h3 style="text-align: center"> Impact estimation </h3>', unsafe_allow_html=True)
 
+#lifecycle of AI
 with tab2:
-    col1, col2, col3, col4 = st.columns(4)
-
     st.markdown(body= '<h3 style= "text-align: center"> The Lifecycle of GenAI models </h3>', unsafe_allow_html = True)
+    
+    
+    col1, col2, col3, col4 = st.columns(4)
+    
+
     
     with col1:
         with st.container(border=True):
             st.markdown(body='<h3 style="text-align: center"> Development </h3>', unsafe_allow_html=True)
             st.markdown('<p style="text-align: center; font-size: 14px; font-weight: normal;">'
-            'Building AI infrastructure, such as hardware components and grid connection, requires natural resources and transportation.'
+            'Building AI infrastructure, such as hardware components and grid connection, requires extraction of natural resources and energy use. '
             '</p>', unsafe_allow_html = True)
     
     with col2:
         with st.container(border=True):
             st.markdown(body='<h3 style="text-align: center"> Training </h3>', unsafe_allow_html=True)
             st.markdown('<p style="text-align: center; font-size: 14px; font-weight: normal;">'
-            'Building AI infrastructure, such as hardware components and grid connection, requires natural resources and transportation.'
+            'Data centers consumes energy during the training stage of GenAI. The emissions produced by this stage varies with the carbon intensity of the local energy mix.'
             '</p>', unsafe_allow_html = True)
     
 
@@ -222,15 +226,60 @@ with tab2:
         with st.container(border=True):
             st.markdown(body='<h3 style="text-align: center"> Inference </h3>', unsafe_allow_html=True)
             st.markdown('<p style="text-align: center; font-size: 14px; font-weight: normal;">'
-            'Building AI infrastructure, such as hardware components and grid connection, requires natural resources and transportation.'
+            'When using GenAI, the energy consumed and emission produce varies depending on the size of the model and the type of utilization, such as a simple text prompt or video generation.'
             '</p>', unsafe_allow_html = True)
 
     with col4:
         with st.container(border=True):
             st.markdown(body='<h3 style="text-align: center"> Retirement </h3>', unsafe_allow_html=True)
             st.markdown('<p style="text-align: center; font-size: 14px; font-weight: normal;">'
-            'Building AI infrastructure, such as hardware components and grid connection, requires natural resources and transportation.'
+            'GenAI models retire when newer versions are developed or when the model can not be maintained. During its end-of-life stage, the hardware must be properly disposed to avoid environmental contamination.'
             '</p>', unsafe_allow_html = True)
     
     
+#resource and recommendations
+with tab3: 
+    col1, col2 = st.columns(2)
 
+    st.markdown("""
+    <style>
+        body {
+            background-color: #FFFFFF;
+        }
+        .block-container {
+            padding-top: 2rem;
+        }
+        /* Custom styling for box card */
+        .box-card {
+            background-color: ##0000FF;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: left;
+            margin-bottom: 20px;
+        
+        
+        }
+        </style>
+""", unsafe_allow_html=True)
+
+    
+    with col1:
+        st.markdown('<h3 style="text-align: center;"> Learn more </h3>', unsafe_allow_html=True)
+        with st.container(border=True):
+           st.markdown("""
+        <div class="box-card">
+            <p>Summary text goes here.</p>
+        </div>
+    """, unsafe_allow_html=True)
+
+    
+        
+    with col2:
+        st.markdown(body='<h3 style="text-align: center"> Recommendations </h3>', unsafe_allow_html=True)
+        with st.container(border=True):
+           st.markdown("""
+        <div class="box-card">
+            <p>Summary text goes here.</p>
+        </div>
+    """, unsafe_allow_html=True)
