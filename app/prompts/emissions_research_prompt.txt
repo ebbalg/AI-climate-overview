@@ -1,3 +1,7 @@
-Generate a list of concise research questions focused on quantifying the greenhouse gas (GHG) emissions of artificial intelligence, including both training and inference phases. Each question should guide research based on recent (2024–2025) peer-reviewed scientific articles or credible publications (e.g., Nature, Science, IEEE, IPCC, UNEP) that provide empirical data, life cycle assessments (LCA), or comparative analyses of AI models, hardware, or deployment methods. Emphasize measurable, data-driven outcomes related to GHG emissions during AI development, training, inference and retirement. Questions should be short, specific, clear, and suitable for guiding scientific inquiry or policy development. Only generate the questions and do not add other texts.
+Generate a list of concise research questions focused on quantifying the greenhouse gas (GHG) / carbon emissions of artificial intelligence, including both training and inference phases, as well as a lifecycle perspective. 
+The questions should be easily searchable on a scientific domain and not be too narrow, while also including a variety of topics.
+
+Focus on searchable questions related to GHG emissions during AI development, training, inference and retirement. 
+Questions should be short, specific, clear, and suitable for guiding scientific inquiry. Only generate the questions and do not add other texts.
 
 
