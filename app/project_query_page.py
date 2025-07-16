@@ -109,10 +109,14 @@ with st.form("my_form"):
         )
 
     with categ_col2:
-        location = st.text_input(
-            label="Location",
+        countries = ["Austria", "Belgium", "Bulgaria", "Croatia", "Czech Republic", "Denmark", "Estonia", "Finland", "France",
+        "Germany", "Greece", "Hungary", "Italy", "Latvia", "Lithuania", "Netherlands", "Norway", "Poland", "Portugal", 
+        "Romania", "Serbia", "Slovakia", "Slovenia", "Spain" "Sweden","United Kingdom"]
+        location = st.selectbox(
+            "Location",
+            options=countries,
             placeholder="Your country",
-            value=st.session_state.location
+            index=countries.index(st.session_state.location) if st.session_state.location in countries else 0
         )
 
     st.markdown("<br>", unsafe_allow_html=True)
