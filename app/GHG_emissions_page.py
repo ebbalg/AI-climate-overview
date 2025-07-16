@@ -17,7 +17,7 @@ with open("app/prompts/emissions_research_prompt.txt", "r", encoding="utf-8") as
 def get_questions(prompt_text, api_key):
     client = OpenAI(api_key=api_key)
     response = client.chat.completions.create(
-        model="gpt-4o",
+        model="gpt-4.1-nano",
         messages=[
             {"role": "system", "content": "You are a helpful assistant."},
             {"role": "user", "content": prompt_text}
