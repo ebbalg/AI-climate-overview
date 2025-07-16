@@ -1,5 +1,16 @@
 import streamlit as st
 
+def set_background_gradient():
+    st.markdown("""
+        <style>
+        .stApp {
+            background: linear-gradient(to bottom right, #F7FFF7, #C1E1C1);
+        }
+        </style>
+    """, unsafe_allow_html=True)
+
+set_background_gradient()
+
 st.set_page_config(layout="centered")
 
 st.markdown(body='<h1 style="text-align: center"> Climate Impact of AI Overview </h1>', unsafe_allow_html=True)
@@ -11,6 +22,7 @@ st.markdown(body='<h3 style="text-align: center"> What are you using the AI Clim
 
 space = st.empty()
 space.markdown("<br>", unsafe_allow_html=True)
+
 
 st.markdown("""
     <style> 
