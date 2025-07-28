@@ -111,7 +111,7 @@ with st.form("my_form"):
     with categ_col2:
         countries = ["Austria", "Belgium", "Bulgaria", "Croatia", "Czech Republic", "Denmark", "Estonia", "Finland", "France",
         "Germany", "Greece", "Hungary", "Italy", "Latvia", "Lithuania", "Netherlands", "Norway", "Poland", "Portugal", 
-        "Romania", "Serbia", "Slovakia", "Slovenia", "Spain" "Sweden","United Kingdom"]
+        "Romania", "Serbia", "Slovakia", "Slovenia", "Spain", "Sweden","United Kingdom"]
         location = st.selectbox(
             "Location",
             options=countries,
