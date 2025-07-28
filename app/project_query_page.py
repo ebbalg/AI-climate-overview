@@ -132,8 +132,17 @@ with st.form("my_form"):
     "Which AI functionalities might help tackle this problem?",
     ai_options,
     index=ai_options.index(st.session_state.ai_function or "Text generation"),
-    horizontal=True
+    horizontal=True,
     )   
+    
+    with st.expander("What does AI functionality mean and what should I choose?"):
+        st.markdown("""AI functionality here refers to the main task that the AI model will perform. The options are: <br><br>
+        <b>Text generation</b>: Generating human-like text from a prompt, can be e.g. a chatbot <br>
+        <b>Text classification</b>: Categorizing text into predefined labels, can be e.g. spam detection for emails <br>
+        <b>Speech recognition</b>: Converting spoken language into text, for example for transcription <br>
+        <b>Image generation</b>: Generating images from a description <br>
+        <b>Image classification</b>: Identify objects or scenes in images by assigning a label, e.g. detecting which animal is in an image""", unsafe_allow_html=True)
+        
 
     submitted = st.form_submit_button("Analyze Climate Impact")
 
