@@ -4,6 +4,8 @@ import os
 from langchain_tavily import TavilySearch, TavilyExtract
 from langchain_openai import ChatOpenAI
 from langgraph.graph import StateGraph
+from langchain_core.output_parsers import StrOutputParser
+from langchain.prompts import PromptTemplate
 from langgraph.graph import END
 from pydantic import BaseModel
 from typing import List, Dict
@@ -11,7 +13,7 @@ from langchain.globals import set_verbose
 from dotenv import load_dotenv
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from scripts.tavily_research_openai import ResearchState
+# from scripts.tavily_research_openai import ResearchState
 
 load_dotenv()
 
@@ -95,6 +97,14 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
+class ResearchState(BaseModel):
+    query: str
+    search_results: List[Dict] = []
+    extracted_docs: List[Dict] = []
+    # summaries: str = ""
+    summaries: List[Dict] = []
+    sources: List[Dict] = []
+
 
 # Back button
 top_col1, _, _ = st.columns([0.1, 0.8, 0.1])
@@ -113,143 +123,199 @@ if "GHG_user_question" in st.session_state:
     st.markdown("> **" + st.session_state["GHG_user_question"] + "**")
 elif "GHG_selected_question" in st.session_state:
     st.markdown("> **" + st.session_state["GHG_selected_question"] + "**")
-
-
     
-st.markdown("**Search Query**")
+    
+st.markdown("**Research Domains**")
+included_domains = ["ieeexplore.ieee.org", "springeropen.com", "scienceopen.com", "nature.com"]    # Peer-reviewed domains for Tavily search.
+# markdown_domains = ( "\n".join(f"- {domain}" for domain in included_domains)
+st.markdown("\n".join(f"- {domain}" for domain in included_domains))
 
-
-col1, col2 = st.columns(2)
 
 # SUMMARY SECTION
-with col1:
-    llm = ChatOpenAI (
-    # model="gpt-4o",
-    # model="gpt-4o-mini",
-    model="gpt-4.1-nano",
-    temperature=0.7,       # reduce randomness and wasted tokens
-    )
 
-    # Tavily tools
-    search_tool = TavilySearch(
-        max_results=6,
-        include_domains=["ieeexplore.ieee.org", "springeropen.com", "scienceopen.com", "nature.com", "scholar.google.com"]  # Peer-reviewed domains. 
-    )
-    extract_tool = TavilyExtract()
-
-    graph = StateGraph(ResearchState)
+@st.cache_data(show_spinner="Searching Tavily...")
+def cached_search(query):
+    result = search_tool.invoke({"query": query})
+    return result["results"]
 
 
-    def search_node(state):
-        query = state.query
-        result = search_tool.invoke({"query": query})
-        search_results = result["results"]
+@st.cache_data(show_spinner="Extracting content...")
+def cached_extract(url):
+    return extract_tool.invoke({"urls": [url]})
+
+
+@st.cache_data(show_spinner="Summarizing content...")
+def cached_summarize(prompt_input):
+    return llm.invoke(prompt_input)
+
+
+llm = ChatOpenAI (
+# model="gpt-4o",
+# model="gpt-4o-mini",
+model="gpt-4.1-nano",
+temperature=0.7,       # reduce randomness and wasted tokens
+)
+
+# Tavily tools
+search_tool = TavilySearch(
+    max_results=6,
+    include_domains=included_domains  
+)
+extract_tool = TavilyExtract()
+
+graph = StateGraph(ResearchState)
+
+
+# def create_search_query_node(state):
+#     # prompt = PromptTemplate.from_template(
+#     #     """You are an expert research assistant. 
+#     #     Reformulate the following research question to be an effective search query.
         
-        return {"search_results": search_results}
+#     #     Original question: "{question}"
+        
+#     #     Return only the reformulated query, no explanations.
+#     #     """
+#     # )
+    
+#     # chain = prompt | llm | StrOutputParser()
+    
+#     # cleaned_query = chain.invoke({"question": state.query})
+    
+#     cleaned_query = cached_rewrite_query(state.query)
+    
+#     return {"query": cleaned_query}
 
-    graph.add_node("search", search_node)
+# graph.add_node("create_search_query", create_search_query_node)
+    
 
-    def extract_node(state: ResearchState):
-        urls = [result['url'] for result in state.search_results]     # only extract from top 3 docs? [:3]
-        extracted = []
-        for url in urls:
-            extracted_doc = extract_tool.invoke({"urls": [url]})     
-            print("Extracted doc:", extracted_doc)
+def search_node(state):
+    query = state.query
+    # result = search_tool.invoke({"query": query})
+    # search_results = result["results"]
+    search_results = cached_search(query)
+    
+    return {"search_results": search_results}
+
+graph.add_node("search", search_node)
+
+def extract_node(state: ResearchState):
+    url_to_title = {result['url']: result.get('title', '') for result in state.search_results}
+    url_to_content = {result['url']: result.get('content', '') for result in state.search_results}
+    extracted = []
+    for url in url_to_title.keys():
+        extracted_doc = cached_extract(url)
+        # print("Extracted doc:", extracted_doc)
+        
+        # TavilyExtract returns a list under "results"
+        if isinstance(extracted_doc, dict) and "results" in extracted_doc:
+            raw_content = extracted_doc["results"][0]["raw_content"]       # shorten content?
+        else:
+            raw_content = str(extracted_doc)
             
-            # TavilyExtract returns a list under "results"
-            if isinstance(extracted_doc, dict) and "results" in extracted_doc:
-                raw_content = extracted_doc["results"][0]["raw_content"]       # shorten content?
-            else:
-                raw_content = str(extracted_doc)
-                
-            extracted.append({
-                "url": url,
-                "title": "",  # fallback
-                "text": raw_content  
-            })
-        return {"extracted_docs": extracted}
+        if not raw_content:  # If extraction is empty, get short content from TavilySearch
+            raw_content = url_to_content.get(url, "")
+            
+        extracted.append({
+            "url": url,
+            "title": url_to_title.get(url, "Untitled"),  
+            "text": raw_content  
+        })
+    return {"extracted_docs": extracted}
 
-    graph.add_node("extract", extract_node)
+graph.add_node("extract", extract_node)
 
 
-    def summarize_node(state):
-        docs = "\n\n".join([doc["text"] for doc in state.extracted_docs])    # limit amount of character? E.g. to first [:3000]?
-        summary_prompt = f"""
-        Research question: {state.query}
-        Sources:
-        {docs}
-        
-        You are a helpful research assistant that aims to summarize research clearly and concisely, without too much technical jargon.
-        When summarizing, cite your sources by using their reference number in brackets immediately after a statement, e.g., [1], [2].
-        After a statement, reference to the relevant source supporting that statement by its number.
-        Summary should help guide a decision-maker that wants an overview of the negative impact of using GenAI related to the given research question.
-        Limit the summary to a maximum of 500 words.
-        """
-        
-        response = llm.invoke(summary_prompt)
-        
-        sources = []
-        for i, doc in enumerate(state.extracted_docs, start=1):
-            sources.append({
-                "index": i,
-                "url": doc["url"],
-                "title": doc.get("title", f"Source {i}")
-            })
-
-        return {
-            "summary": response.content,
-            "sources": sources
-        }
-        
-    graph.add_node("summarize", summarize_node)
-        
-    # Edges
-    graph.add_edge("search", "extract")
-    graph.add_edge("extract", "summarize")
-    graph.add_edge("summarize", END)
-
-    graph.set_entry_point("search")
-
-    # Graph: (search) → (extract) → (summarize) → END
-    app = graph.compile()
+def summarize_node(state):
+    # docs = "\n\n".join([doc["text"] for doc in state.extracted_docs])    # limit amount of character? E.g. to first [:3000]?
+    # docs = state.extracted_docs
+    # summary_prompt = f"""
+    # Research question: {state.query}
+    # Name of article: {article_title}
+    # Extracted text from research article: {research_text}
     
-    selected_question = st.session_state["GHG_selected_question"]
-
-    inputs = {"query": selected_question}
-    result = app.invoke(inputs)    # new state
-
-    final_state = ResearchState(
-        query = result["query"],
-        search_results = result["search_results"],
-        extracted_docs = result["extracted_docs"],
-        summary = result["summary"],
-        sources = result["sources"]
+    # You are a helpful research assistant that aims to summarize research papers clearly and concisely. 
+    # Write a summary according to the instructions below. Summary should help guide a decision-maker that wants an overview of the negative impact of using GenAI related to the given research question.
+    # - Write a short summary of the article, about 2-3 sentences.
+    # - Do NOT make up any new information, make sure that you stick to information in the extracted text.
+    # - If quantifiable data is included in the research paper, include this data in the summary.
+    # """
+    
+    summary_prompt = PromptTemplate.from_template(
+        """ Research question: {query}
+            Name of article: {article_title}
+            Extracted text from research article: {research_text}
+            
+            You are a helpful research assistant that aims to summarize research papers clearly and concisely. 
+            Write a summary according to the instructions below. Summary should help guide a decision-maker that wants an overview of the negative impact of using GenAI related to the given research question.
+            - Write a short summary of the article, about 2-3 sentences.
+            - Do NOT make up any new information, make sure that you stick to information in the extracted text.
+    """
     )
-
-    # print("\nFINAL SUMMARY:")
-    # print(final_state.summary)
-    # print("\nSOURCES:")
-    # for s in final_state.sources:
-    #     print(f"{s['index']}. {s['title']} — {s['url']}")
     
-    
-    st.markdown('<h2 style="text-align: left;"> Summary </h2>', unsafe_allow_html=True)
-    st.markdown(f"""
-        <div class="summary-card">
-            <p>{final_state.summary}</p>
-        </div>
-    """, unsafe_allow_html=True)
-
-
-# REFERENCES SECTION
-with col2:
-    st.markdown('<h2 style="text-align: left;"> References </h2>', unsafe_allow_html=True)
-    refs_html = ""
-    for s in final_state.sources:
-        refs_html += f"<p>{s['index']}. {s['title']} — <a href='{s['url']}' target='_blank'>{s['url']}</a></p>"
+    summaries = []
+    for source in state.extracted_docs:
+        url = source["url"]
+        article_title = source["title"]
+        # research_text = source["text"][:3000]
+        research_text = source["text"]
         
-    st.markdown(f"""
-        <div class="references-card">
-            <p>{refs_html}</p>
-        </div>
-    """, unsafe_allow_html=True)
+        create_summary_chain = summary_prompt | llm | StrOutputParser()
+        
+        tokens = create_summary_chain.invoke(  # Replace with stream for streamed text generation
+                        {"query": state.query, "article_title": article_title, "research_text": research_text}
+                    )
+        
+        summaries.append({
+            "title": article_title,
+            "url": url,
+            "summary": tokens
+        })
+
+    
+    sources = []
+    for i, doc in enumerate(state.extracted_docs, start=1):
+        sources.append({
+            "index": i,
+            "url": doc["url"],
+            "title": doc.get("title", f"Source {i}")
+        })
+
+    return {
+        "summaries": summaries,
+        "sources": sources
+    }
+    
+    
+graph.add_node("summarize", summarize_node)
+    
+# Edges
+graph.add_edge("search", "extract")
+graph.add_edge("extract", "summarize")
+graph.add_edge("summarize", END)
+
+graph.set_entry_point("search")
+
+# Graph: (search) → (extract) → (summarize) → END
+app = graph.compile()
+
+# selected_question = st.session_state["GHG_selected_question"]
+selected_question = st.session_state.get("GHG_user_question") or st.session_state.get("GHG_selected_question")
+
+inputs = {"query": selected_question}
+result = app.invoke(inputs)    # new state
+
+final_state = ResearchState(
+    query = result["query"],
+    search_results = result["search_results"],
+    extracted_docs = result["extracted_docs"],
+    summaries = result["summaries"],
+    sources = result["sources"]
+)
+
+st.markdown('<h2 style="text-align: left;"> Research Articles </h2>', unsafe_allow_html=True)
+
+for source in final_state.summaries:
+    st.markdown(f"[🔗 {source["title"]}]({source["url"]})", unsafe_allow_html=True)
+    st.markdown(source["summary"])
+    st.markdown("---")
+    
