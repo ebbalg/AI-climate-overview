@@ -111,7 +111,7 @@ with st.form("my_form"):
     with categ_col2:
         countries = ["Austria", "Belgium", "Bulgaria", "Croatia", "Czech Republic", "Denmark", "Estonia", "Finland", "France",
         "Germany", "Greece", "Hungary", "Italy", "Latvia", "Lithuania", "Netherlands", "Norway", "Poland", "Portugal", 
-        "Romania", "Serbia", "Slovakia", "Slovenia", "Spain" "Sweden","United Kingdom"]
+        "Romania", "Serbia", "Slovakia", "Slovenia", "Spain", "Sweden","United Kingdom"]
         location = st.selectbox(
             "Location",
             options=countries,
@@ -127,7 +127,7 @@ with st.form("my_form"):
         value=st.session_state.challenge
     )
     
-    ai_options = ["Text generation", "Text classification", "Speech recognition"]
+    ai_options = ["Text generation", "Text classification", "Speech recognition", "Image generation", "Image classification"]
     ai_function = st.radio(
     "Which AI functionalities might help tackle this problem?",
     ai_options,

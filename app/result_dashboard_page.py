@@ -142,6 +142,12 @@ elif ai_functionality_choice == "Text classification":
     
 elif ai_functionality_choice == "Speech recognition":
     csv_file = "asr.csv"
+    
+elif ai_functionality_choice == "Image generation":
+    csv_file = "image_generation.csv"
+    
+elif ai_functionality_choice == "Image classification":
+    csv_file = "image_classification.csv"
 
 
 avg_gpu_energy = calculate_average_gpu_energy(csv_file)
