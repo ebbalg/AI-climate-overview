@@ -4,6 +4,12 @@ import pandas as pd
 
 energy_score_dir = "../AI-climate-overview/data/AI-energy-leaderboard/"
 
+def get_all_models_for_task(task_file):
+    file_path = os.path.join(energy_score_dir, task_file)
+    df = pd.read_csv(file_path)
+    return df['model']
+    
+
 def calculate_average_gpu_energy(task_file):
     """Calculate the estimated energy consumption per query for a specific task.
 
@@ -41,6 +47,7 @@ def compare_with_average(model_obj, avg_gpu_energy):
     
     return round(avg_gpu_energy / model_gpu_energy)
 
+
 def get_comparison_df(model_obj, avg_gpu_energy):
     comparison_data = pd.DataFrame({
             "Model": [model_obj["model"], "Leaderboard average"],
@@ -68,15 +75,18 @@ def calculate_average_emissions_per_energy(carbon_intensity, avg_energy_Wh):
  
 if __name__=='__main__':
     best_model_obj = find_lowest_energy_model("text_generation.csv")
-    print(best_model_obj)
+    # print(best_model_obj)
 
     avg_gpu_energy = calculate_average_gpu_energy("text_generation.csv")
-    print("Best energy: ", best_model_obj["total_gpu_energy"])
-    print("Average energy: ", avg_gpu_energy)
+    # print("Best energy: ", best_model_obj["total_gpu_energy"])
+    # print("Average energy: ", avg_gpu_energy)
     
-    print(compare_with_average(best_model_obj, avg_gpu_energy))
+    # print(compare_with_average(best_model_obj, avg_gpu_energy))
     
-    print(get_comparison_df(best_model_obj, avg_gpu_energy))
+    # print(get_comparison_df(best_model_obj, avg_gpu_energy))
+    
+    for model in get_all_models_for_task("text_generation.csv"):
+        print(model)
     
     
 
