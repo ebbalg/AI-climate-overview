@@ -47,7 +47,11 @@ st.markdown("""
             height: 160px;
         }
         .small-card h5 {
-            margin: 0 0 10px 0;
+            margin: 0 0 5px 0;
+        }
+
+        .small-card p {
+            margin: 0 0 0 0; 
         }
 
         /* Back button styling */
@@ -61,6 +65,10 @@ st.markdown("""
         }
     </style>
 """, unsafe_allow_html=True)
+
+
+        
+
 
 # Back button
 top_col1, _, _ = st.columns([0.1, 0.8, 0.1])
@@ -102,7 +110,7 @@ st.markdown("<br><br>", unsafe_allow_html=True)
 st.markdown("### Other Environmental Considerations")
 
 st.markdown("""
-<p>While this navigator focuses on directly actionable aspects, it’s important to acknowledge that AI’s environmental impact extends beyond energy and emissions.</p>
+<p>While this navigator focuses on directly actionable aspects, it’s important to acknowledge that AI’s environmental impact extends beyond energy and carbon emissions. \n Some other examples are listed below.</p>
 """, unsafe_allow_html=True)
 
 c1, c2, c3, c4 = st.columns(4)
@@ -135,6 +143,6 @@ with c4:
     st.markdown("""
         <div class="small-card">
             <h5>Environmental Contamination</h5>
-            <p>Building AI infrastructure carries the risk of releasing harmful substances into the environment.</p>
+            <p style="position: relative; top: -5px; z-index: 10;" > Building AI infrastructure carries the risk of releasing harmful substances into the environment.</p>
         </div>
     """, unsafe_allow_html=True)
