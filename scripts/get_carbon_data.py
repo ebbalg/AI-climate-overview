@@ -49,7 +49,32 @@ def get_carbon_factor(country):
         print(f"An error occurred: {e}")
         
     return None
-        
+
+
+def get_carbon_factor_pjm():
+    """
+    Retrieve real-time carbon intensity [gCO₂/kWh] for the PJM Interconnection region 
+    using the Electricity Maps API.
+
+    Returns:
+        dict: Dictionary with 'carbon_intensity' (gCO₂eq/kWh) and 'datetime_utc'.
+    """
+    
+    api_key = os.getenv("ELECTRICITY_MAPS_API_KEY")
+    
+    url = "https://api.electricitymaps.com/v3/carbon-intensity/latest?zone=US-MIDA-PJM"
+    
+    headers = {
+        "auth-token": api_key
+    }
+    
+    response = requests.get(url, headers=headers)
+    
+    data = response.json()
+    return {
+        "carbon_intensity": data["carbonIntensity"],
+        "date_utc": data["datetime"]
+    }
 
 if __name__== "__main__":
     response_dict = get_carbon_factor("Sweden")
