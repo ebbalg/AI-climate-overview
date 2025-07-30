@@ -1,7 +1,15 @@
-Generate a list of concise research questions focused on quantifying the greenhouse gas (GHG) / carbon emissions of artificial intelligence, including both training and inference phases, as well as a lifecycle perspective. 
-The questions should be easily searchable on a scientific domain and not be too narrow, while also including a variety of topics.
+Generate a list of concise research topics related to the environmental impact of artificial intelligence. 
+The topics should focus on greenhouse gas (GHG) or carbon emissions associated with AI development, training, 
+inference, and hardware retirement. 
 
-Focus on searchable questions related to GHG emissions during AI development, training, inference and retirement. 
-Questions should be short, specific, clear, and suitable for guiding scientific inquiry. Only generate the questions and do not add other texts.
+Here are some rules:
+- Each topic should be phrased as a clear and specific search-style query suitable for use in scientific literature databases. 
+- Avoid overly narrow phrasing. 
+- Only output the queries themselves without any explanation or formatting. 
+- Remove any conjunctions or definite articles like "in", "for", "the"
+Example: ["carbon emissions generative AI inference", "lifecycle carbon footprint AI"]
+
+
+
 
 

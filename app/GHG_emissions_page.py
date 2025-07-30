@@ -27,7 +27,7 @@ def get_questions(prompt_text, api_key):
     raw = response.choices[0].message.content
     return [line.strip("0123456789. ").strip() for line in raw.strip().split("\n") if line.strip()]
 
-with st.spinner("Generating Research Questions..."):
+with st.spinner("Generating Research Topics..."):
     questions = get_questions(prompt, api_key)
 
 
@@ -44,7 +44,7 @@ st.markdown("""
         .info-card {
             background-color: white;
             border-radius: 12px;
-            padding: 20px;
+            padding: 10px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
             text-align: left;
         }
@@ -52,7 +52,7 @@ st.markdown("""
             margin-bottom: 10px;
         }
         .info-card p {
-            margin-bottom: 20px;
+            margin-bottom: 10px;
         }
 
         /* Style Streamlit buttons */
