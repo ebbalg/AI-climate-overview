@@ -117,7 +117,7 @@ with top_col1:
 st.markdown('<h1 style="text-align: center;"> GHG Emissions from GenAI </h1>', unsafe_allow_html=True)
 
 
-st.markdown("**Research Question**")
+st.markdown("**Research Topic**")
 
 if "GHG_user_question" in st.session_state:
     st.markdown("> **" + st.session_state["GHG_user_question"] + "**")
@@ -161,37 +161,13 @@ search_tool = TavilySearch(
     max_results=6,
     include_domains=included_domains  
 )
-extract_tool = TavilyExtract()
+extract_tool = TavilyExtract(include_images=False)
 
 graph = StateGraph(ResearchState)
-
-
-# def create_search_query_node(state):
-#     # prompt = PromptTemplate.from_template(
-#     #     """You are an expert research assistant. 
-#     #     Reformulate the following research question to be an effective search query.
-        
-#     #     Original question: "{question}"
-        
-#     #     Return only the reformulated query, no explanations.
-#     #     """
-#     # )
-    
-#     # chain = prompt | llm | StrOutputParser()
-    
-#     # cleaned_query = chain.invoke({"question": state.query})
-    
-#     cleaned_query = cached_rewrite_query(state.query)
-    
-#     return {"query": cleaned_query}
-
-# graph.add_node("create_search_query", create_search_query_node)
     
 
 def search_node(state):
     query = state.query
-    # result = search_tool.invoke({"query": query})
-    # search_results = result["results"]
     search_results = cached_search(query)
     
     return {"search_results": search_results}
@@ -226,28 +202,17 @@ graph.add_node("extract", extract_node)
 
 
 def summarize_node(state):
-    # docs = "\n\n".join([doc["text"] for doc in state.extracted_docs])    # limit amount of character? E.g. to first [:3000]?
-    # docs = state.extracted_docs
-    # summary_prompt = f"""
-    # Research question: {state.query}
-    # Name of article: {article_title}
-    # Extracted text from research article: {research_text}
-    
-    # You are a helpful research assistant that aims to summarize research papers clearly and concisely. 
-    # Write a summary according to the instructions below. Summary should help guide a decision-maker that wants an overview of the negative impact of using GenAI related to the given research question.
-    # - Write a short summary of the article, about 2-3 sentences.
-    # - Do NOT make up any new information, make sure that you stick to information in the extracted text.
-    # - If quantifiable data is included in the research paper, include this data in the summary.
-    # """
     
     summary_prompt = PromptTemplate.from_template(
-        """ Research question: {query}
+        """ Research topic: {query}
             Name of article: {article_title}
             Extracted text from research article: {research_text}
             
-            You are a helpful research assistant that aims to summarize research papers clearly and concisely. 
-            Write a summary according to the instructions below. Summary should help guide a decision-maker that wants an overview of the negative impact of using GenAI related to the given research question.
+            You are a helpful research assistant that aims to summarize research papers to someone who wants to understand the main point of the article, based on the given research topic. 
+            Write a summary according to the instructions below. 
             - Write a short summary of the article, about 2-3 sentences.
+            - If quantified data is included in the research paper, include this data in the summary.
+            - Be specific in the summary rather than vague.
             - Do NOT make up any new information, make sure that you stick to information in the extracted text.
     """
     )
