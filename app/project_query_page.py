@@ -114,9 +114,10 @@ with st.form("my_form"):
         "Romania", "Serbia", "Slovakia", "Slovenia", "Spain", "Sweden","United Kingdom"]
         location = st.selectbox(
             "Location",
+            help = "The country where your AI model will run, usually where the provided cloud server or datacenter is placed.", 
             options=countries,
-            placeholder="Your country",
-            index=countries.index(st.session_state.location) if st.session_state.location in countries else 0
+            placeholder="Country",
+            index=countries.index(st.session_state.location) if st.session_state.location in countries else 24,
         )
 
     st.markdown("<br>", unsafe_allow_html=True)
