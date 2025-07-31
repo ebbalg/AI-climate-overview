@@ -1,3 +1,4 @@
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import streamlit as st
 import sys 
 import os
@@ -242,8 +243,7 @@ def extract_node(state: ResearchState):
 
 graph.add_node("extract", extract_node)
 
-def summarize_node(state):
-    
+def summarize_article(source, query):
     summary_prompt = PromptTemplate.from_template(
         """ Research topic: {query}
             Name of article: {article_title}
@@ -258,41 +258,50 @@ def summarize_node(state):
     """
     )
     
-    # tracker = OfflineEmissionsTracker(country_iso_code="SWE")
-    # tracker.start()
-    summaries = []
-    for source in state.extracted_docs:
-        url = source["url"]
-        article_title = source["title"]
-        # research_text = source["text"][:3000]
-        research_text = source["text"]
-        
-        create_summary_chain = summary_prompt | llm | StrOutputParser()
-        
-        tokens = create_summary_chain.invoke(  # Replace with stream for streamed text generation
-                        {"query": state.query, "article_title": article_title, "research_text": research_text}
-                    )
-        
-        summaries.append({
-            "title": article_title,
-            "url": url,
-            "summary": tokens
-        })
-        
-    # code_carbon_data = tracker.stop()
+    create_summary_chain = summary_prompt | llm | StrOutputParser()
+    tokens = create_summary_chain.invoke({
+        "query": query,
+        "article_title": source["title"],
+        "research_text": source["text"]     # truncate [:4000]?  
+    })
     
+    return {
+        "title": source["title"],
+        "url": source["url"],
+        "summary": tokens
+    }
+    
+def summarize_node(state):
+    summaries = []
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        futures = [
+            executor.submit(summarize_article, source, state.query)
+            for source in state.extracted_docs
+        ]
+        progress_placeholder = st.empty()
+        progress = progress_placeholder.progress(0)
+        total = len(futures)
+        done = 0
+
+        for future in as_completed(futures):
+            result = future.result()
+            summaries.append(result)
+            done += 1
+            progress.progress(done / total)
+            
+        progress_placeholder.empty()  # hide the progress bar when the progress bar is finished
+
     sources = []
-    for i, doc in enumerate(state.extracted_docs, start=1):
+    for i, s in enumerate(summaries, start=1):
         sources.append({
             "index": i,
-            "url": doc["url"],
-            "title": doc.get("title", f"Source {i}")
+            "url": s["url"],
+            "title": s["title"]
         })
 
     return {
         "summaries": summaries,
-        "sources": sources,
-        # "code_carbon_data": code_carbon_data
+        "sources": sources
     }
     
     
@@ -324,7 +333,6 @@ final_state = ResearchState(
     search_results = result["search_results"],
     extracted_docs = result["extracted_docs"],
     summaries = result["summaries"],
-    # code_carbon_data = result["code_carbon_data"],
     sources = result["sources"]
 )
 
