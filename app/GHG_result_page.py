@@ -1,6 +1,8 @@
 import streamlit as st
 import sys 
 import os
+import sqlite3
+import json
 from langchain_tavily import TavilySearch, TavilyExtract
 from langchain_openai import ChatOpenAI
 from langgraph.graph import StateGraph
@@ -9,11 +11,11 @@ from langchain.prompts import PromptTemplate
 from langgraph.graph import END
 from pydantic import BaseModel
 from typing import List, Dict
-from langchain.globals import set_verbose
 from dotenv import load_dotenv
 
+from datetime import datetime
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-# from scripts.tavily_research_openai import ResearchState
 
 load_dotenv()
 
@@ -105,6 +107,21 @@ class ResearchState(BaseModel):
     summaries: List[Dict] = []
     sources: List[Dict] = []
 
+# SQLite Notebook
+db = sqlite3.connect('notebook.db')
+c = db.cursor()
+c.execute('''
+    CREATE TABLE IF NOT EXISTS notebook (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        question TEXT,
+        summary TEXT,
+        title TEXT,
+        url TEXT,
+        timestamp TEXT,
+        UNIQUE(question, title, url)
+    )
+''')
+db.commit()
 
 # Back button
 top_col1, _, _ = st.columns([0.1, 0.8, 0.1])
@@ -114,7 +131,7 @@ with top_col1:
         st.switch_page("GHG_emissions_page.py")
 
 
-st.markdown('<h1 style="text-align: center;"> GHG Emissions from GenAI </h1>', unsafe_allow_html=True)
+st.markdown('<h1 style="text-align: center;"> GHG Emissions from AI </h1>', unsafe_allow_html=True)
 
 
 st.markdown("**Research Topic**")
@@ -126,7 +143,7 @@ elif "GHG_selected_question" in st.session_state:
     
     
 st.markdown("**Research Domains**")
-included_domains = ["ieeexplore.ieee.org", "springeropen.com", "scienceopen.com", "nature.com"]    # Peer-reviewed domains for Tavily search.
+included_domains = ["ieeexplore.ieee.org", "springeropen.com", "scienceopen.com", "nature.com", "arxiv.org"]    # Peer-reviewed domains for Tavily search.
 # markdown_domains = ( "\n".join(f"- {domain}" for domain in included_domains)
 st.markdown("\n".join(f"- {domain}" for domain in included_domains))
 
@@ -153,7 +170,8 @@ llm = ChatOpenAI (
 # model="gpt-4o",
 # model="gpt-4o-mini",
 model="gpt-4.1-nano",
-temperature=0.7,       # reduce randomness and wasted tokens
+# temperature=0.7,       
+temperature = 0       # reduce randomness and wasted tokens
 )
 
 # Tavily tools
@@ -263,11 +281,16 @@ graph.set_entry_point("search")
 # Graph: (search) → (extract) → (summarize) → END
 app = graph.compile()
 
-# selected_question = st.session_state["GHG_selected_question"]
 selected_question = st.session_state.get("GHG_user_question") or st.session_state.get("GHG_selected_question")
 
 inputs = {"query": selected_question}
-result = app.invoke(inputs)    # new state
+
+if "GHG_result" not in st.session_state or st.session_state["GHG_result"]["query"] != selected_question:
+    result = app.invoke(inputs)  
+    st.session_state["GHG_result"] = result  
+    
+else:
+    result = st.session_state["GHG_result"]
 
 final_state = ResearchState(
     query = result["query"],
@@ -283,4 +306,62 @@ for source in final_state.summaries:
     st.markdown(f"[🔗 {source["title"]}]({source["url"]})", unsafe_allow_html=True)
     st.markdown(source["summary"])
     st.markdown("---")
+    
+
+col1, col2 = st.columns(2)
+with col1:
+    if st.button("Save to Research Notebook"):
+        for s in final_state.summaries:
+            c.execute('''
+                INSERT OR IGNORE INTO notebook (question, summary, title, url, timestamp)
+                VALUES (?, ?, ?, ?, ?)
+            ''', (final_state.query, s["summary"], s["title"], s["url"], datetime.now().isoformat()))
+        db.commit()
+        st.success("Saved to your notebook!")
+    
+with col2:  
+    if st.button("Clear Research Notebook"):
+        c.execute('DELETE FROM notebook')
+        db.commit()
+        st.success("Your Research Notebook has been cleared!")
+    
+# View notebook 
+st.markdown('<h2 style="text-align: left;"> Research Notebook </h2>', unsafe_allow_html=True)
+
+
+search_term = st.text_input("Search Notebook")
+if search_term:
+    c.execute('''
+        SELECT question, summary, title, url, timestamp 
+        FROM notebook 
+        WHERE question LIKE ? OR summary LIKE ?
+        ORDER BY timestamp DESC
+    ''', (f'%{search_term}%', f'%{search_term}%'))
+else:
+    c.execute('SELECT question, summary, title, url, timestamp FROM notebook ORDER BY timestamp DESC')
+    
+    
+rows = c.fetchall()
+if rows:
+    for row in rows:
+        st.markdown(f"**{row[0]}**  \n_Saved: {row[4]}_", unsafe_allow_html=True)
+        st.markdown(f"[🔗 {row[2]}]({row[3]})", unsafe_allow_html=True)
+        st.markdown(row[1])
+        st.markdown("---")
+else:
+    st.info("No entries yet. Save some research!")
+
+
+c.execute('SELECT question, summary, title, url, timestamp FROM notebook')
+rows = c.fetchall()
+export = [
+    {"question": r[0], "summary": r[1], "title": r[2], "url": r[3], "timestamp": r[4]}
+    for r in rows
+]
+st.download_button(
+    "⬇ Download Notebook JSON",
+    json.dumps(export, indent=2),
+    file_name="notebook.json",
+    mime="application/json"
+)
     
