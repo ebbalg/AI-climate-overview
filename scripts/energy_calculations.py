@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 import os
 import pandas as pd
-from codecarbon import EmissionsTracker
+# from codecarbon import EmissionsTracker
 
-tracker = EmissionsTracker()
+# tracker = EmissionsTracker()
 
-tracker.start()
+# tracker.start()
 
 energy_score_dir = "../AI-climate-overview/data/AI-energy-leaderboard/"
 
@@ -79,24 +79,24 @@ def calculate_average_emissions_per_energy(carbon_intensity, avg_energy_Wh):
 
  
 if __name__=='__main__':
-    try:
-        best_model_obj = find_lowest_energy_model("text_generation.csv")
-        # print(best_model_obj)
+    # try:
+    best_model_obj = find_lowest_energy_model("text_generation.csv")
+    # print(best_model_obj)
 
-        avg_gpu_energy = calculate_average_gpu_energy("text_generation.csv")
-        print("Best energy: ", best_model_obj["total_gpu_energy"])
-        print("Average energy: ", avg_gpu_energy)
-        
-        print(compare_with_average(best_model_obj, avg_gpu_energy))
-        
-        print(get_comparison_df(best_model_obj, avg_gpu_energy))
-        
-        for model in get_all_models_for_task("text_generation.csv"):
-            print(model)
+    avg_gpu_energy = calculate_average_gpu_energy("text_generation.csv")
+    print("Best energy: ", best_model_obj["total_gpu_energy"])
+    print("Average energy: ", avg_gpu_energy)
+    
+    print(compare_with_average(best_model_obj, avg_gpu_energy))
+    
+    print(get_comparison_df(best_model_obj, avg_gpu_energy))
+    
+    for model in get_all_models_for_task("text_generation.csv"):
+        print(model)
 
 
-    finally:
-        _ = tracker.stop()
+    # finally:
+    #     _ = tracker.stop()
     
     
 
