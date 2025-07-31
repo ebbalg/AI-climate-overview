@@ -244,7 +244,7 @@ with col2:
         lambda x: calculate_average_emissions_per_energy(x, avg_gpu_energy))
         
         st.markdown(f"Running your model on a cloud server or datacenter in {st.session_state['location']} would yield around {estimated_emissions:.4g} g CO₂eq per query according to Nowtricity data retreved on {data_retrieval_time_utc}.")
-        st.markdown("Comparing the corresponding estimated emissions of the model with a European context to that with a global average carbon intensity factor or a US factor over time:")
+        st.markdown("Comparing the corresponding estimated emissions of the model with a European context to that with a global average carbon intensity factor or a US factor between 2024-2025. Please note that this is historical data. The energy mix and the emissions levels might change in the future.")
 
         global_df['source'] = 'Global'
         us_df['source'] = 'US'
@@ -321,8 +321,8 @@ with col2:
         data_retrieval_time_utc_pjm = dt_pjm.strftime("%B %d, %Y at %I:%M %p UTC")
         estimated_emissions_pjm = calculate_average_emissions_per_energy(carbon_intensity_pjm, avg_gpu_energy) 
         
-        st.markdown("A common datacenter location for cloud providers like Azure and Amazon Web Services is East US region, where the PJM grid region is one of the largest power grid operators.")
-        st.markdown(f"Running the model on a datacenter in East US might produce around {estimated_emissions_pjm:.4g} g CO₂eq, according to data from the Electricity Maps API retrieved {data_retrieval_time_utc_pjm}.")
+        st.markdown("A common data center location for cloud providers like Azure and Amazon Web Services is the East US region, where the PJM grid region is one of the largest power grid operators.")
+        st.markdown(f"Running the model on a data center in East US might produce around {estimated_emissions_pjm:.4g} g CO₂eq, according to data from the Electricity Maps API retrieved {data_retrieval_time_utc_pjm}.")
         
         percent_diff = ((estimated_emissions_pjm - estimated_emissions) / estimated_emissions_pjm) * 100
         st.markdown(f"""
@@ -383,8 +383,8 @@ with tab1:
                 st.markdown(f"With around 10 queries a day per user and 10 users, your selected AI functionality might generate approximately {estimated_emissions*10*10*365:.4g} g CO₂eq per year.")
                 
             with st.container(border=True):
-                st.markdown("""Running a model inference consumes compute, so it uses electricity and produces CO₂ depending on the energy mix.
-                            Key factors include the model and number of characters in the prompt, the hardware (GPU/TPU efficiency and utilization), and system overhead (power used by cooling, CPUs, networking, etc, often expressed by the data center's PUE - Power Usage). 
+                st.markdown("""Running a model inference consumes computing power, so it uses electricity and produces CO₂ depending on the energy mix.
+                            Key factors include the model and number of characters in the prompt, the hardware (GPU/TPU efficiency and utilization), and system overhead (power used by cooling, CPUs, networking, etc, often expressed by the data center's PUE - Power Usage Effectiveness). 
                             Software factors like caching responses can also affect energy per query.
                             Carbon emissions depend on the data center location and its grid's carbon intensity, so the location of the data center and its energy grid mix are crucial. 
                             Since this data is often complex to get access to, this service considers the country average carbon factor for your selected country. """)

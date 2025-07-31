@@ -19,7 +19,7 @@ def get_questions(prompt_text, api_key):
     response = client.chat.completions.create(
         model="gpt-4.1-nano",
         messages=[
-            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "system", "content": "You are a helpful research assistant."},
             {"role": "user", "content": prompt_text}
         ],
         temperature=0.7
@@ -100,7 +100,7 @@ with top_col1:
 
 
 
-st.markdown('<h1 style="text-align: center;"> GHG Emissions from GenAI </h1>', unsafe_allow_html=True)
+st.markdown('<h1 style="text-align: center;"> GHG Emissions from AI </h1>', unsafe_allow_html=True)
 st.markdown('<h4 style="text-align: center;font-weight: normal;">Learn more about the environmental aspects of AI usage that you and your organization can directly impact, and understand the broader context of AI’s environmental footprint.</h4>', unsafe_allow_html=True)
 st.markdown("<br>", unsafe_allow_html=True)
 
