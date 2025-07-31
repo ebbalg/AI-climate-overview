@@ -11,9 +11,13 @@ from langchain.prompts import PromptTemplate
 from langgraph.graph import END
 from pydantic import BaseModel
 from typing import List, Dict
+from codecarbon import OfflineEmissionsTracker
 from dotenv import load_dotenv
 
 from datetime import datetime
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from scripts.get_carbon_data import get_codecarbon_estimate
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
@@ -123,6 +127,8 @@ c.execute('''
 ''')
 db.commit()
 
+llm_model = "gpt-4.1-nano"
+
 # Back button
 top_col1, _, _ = st.columns([0.1, 0.8, 0.1])
 with top_col1:
@@ -133,20 +139,39 @@ with top_col1:
 
 st.markdown('<h1 style="text-align: center;"> GHG Emissions from AI </h1>', unsafe_allow_html=True)
 
+research_topic_col, codecarbon_col = st.columns(2)
 
-st.markdown("**Research Topic**")
+with research_topic_col:
+    st.markdown("**Research Topic**")
 
-if "GHG_user_question" in st.session_state:
-    st.markdown("> **" + st.session_state["GHG_user_question"] + "**")
-elif "GHG_selected_question" in st.session_state:
-    st.markdown("> **" + st.session_state["GHG_selected_question"] + "**")
+    if "GHG_user_question" in st.session_state:
+        st.markdown("> **" + st.session_state["GHG_user_question"] + "**")
+    elif "GHG_selected_question" in st.session_state:
+        st.markdown("> **" + st.session_state["GHG_selected_question"] + "**")
+        
+    st.markdown("**Research Domains**")
+    included_domains = ["ieeexplore.ieee.org", "springeropen.com", "scienceopen.com", "nature.com", "arxiv.org"]    # Peer-reviewed domains for Tavily search.
+    # markdown_domains = ( "\n".join(f"- {domain}" for domain in included_domains)
+    st.markdown("\n".join(f"- {domain}" for domain in included_domains))
+
+with codecarbon_col: #from Codecarbon emissions in kg Co2eq , energy in kWh, this will be converted
+    codecarbon_data = get_codecarbon_estimate()
     
+    emissions = codecarbon_data["emissions"]
+    energy_consumed = codecarbon_data["energy_consumed"]
+    timestamp = codecarbon_data["timestamp"]
     
-st.markdown("**Research Domains**")
-included_domains = ["ieeexplore.ieee.org", "springeropen.com", "scienceopen.com", "nature.com", "arxiv.org"]    # Peer-reviewed domains for Tavily search.
-# markdown_domains = ( "\n".join(f"- {domain}" for domain in included_domains)
-st.markdown("\n".join(f"- {domain}" for domain in included_domains))
-
+    dt = datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%S")
+    data_retrieval_time = dt.strftime("%B %d, %Y at %I:%M %p")
+    
+    st.markdown("<br>", unsafe_allow_html=True)
+    with st.expander("**What is the environmental impact of this service?**"):
+        st.markdown(f"Sources are retrieved with Tavily Search and Tavily Extract, using only the trusted domains stated under 'Research Domains'. This service also uses ChatOpenAI from Langchain with the model {llm_model} to generate research topics and generate a summarization of each article.")
+        st.markdown(f"To estimate the energy consumed (sum of cpu_energy, gpu_energy and ram_energy) and carbon emissions on a local machine, the summarization step with the help of {llm_model} was tracked with CodeCarbon, and the values are displayed below:")
+        st.markdown(f'**Energy use of LLM summarization of this service: {energy_consumed:.4f} Wh.**')
+        st.markdown(f'**Carbon emissions of LLM summarization of this service: {emissions:.4f} g CO2eq.**')
+        st.markdown(f'These values were calculated on the {data_retrieval_time} Swedish time, on an Apple M1 Pro and is just an estimation.')
+            
 
 # SUMMARY SECTION
 
@@ -165,11 +190,10 @@ def cached_extract(url):
 def cached_summarize(prompt_input):
     return llm.invoke(prompt_input)
 
-
 llm = ChatOpenAI (
 # model="gpt-4o",
 # model="gpt-4o-mini",
-model="gpt-4.1-nano",
+model=llm_model,
 # temperature=0.7,       
 temperature = 0       # reduce randomness and wasted tokens
 )
@@ -218,7 +242,6 @@ def extract_node(state: ResearchState):
 
 graph.add_node("extract", extract_node)
 
-
 def summarize_node(state):
     
     summary_prompt = PromptTemplate.from_template(
@@ -235,6 +258,8 @@ def summarize_node(state):
     """
     )
     
+    # tracker = OfflineEmissionsTracker(country_iso_code="SWE")
+    # tracker.start()
     summaries = []
     for source in state.extracted_docs:
         url = source["url"]
@@ -253,7 +278,8 @@ def summarize_node(state):
             "url": url,
             "summary": tokens
         })
-
+        
+    # code_carbon_data = tracker.stop()
     
     sources = []
     for i, doc in enumerate(state.extracted_docs, start=1):
@@ -265,7 +291,8 @@ def summarize_node(state):
 
     return {
         "summaries": summaries,
-        "sources": sources
+        "sources": sources,
+        # "code_carbon_data": code_carbon_data
     }
     
     
@@ -297,6 +324,7 @@ final_state = ResearchState(
     search_results = result["search_results"],
     extracted_docs = result["extracted_docs"],
     summaries = result["summaries"],
+    # code_carbon_data = result["code_carbon_data"],
     sources = result["sources"]
 )
 
@@ -308,8 +336,8 @@ for source in final_state.summaries:
     st.markdown("---")
     
 
-col1, col2 = st.columns(2)
-with col1:
+save_research, clear_research = st.columns(2)
+with save_research:
     if st.button("Save to Research Notebook"):
         for s in final_state.summaries:
             c.execute('''
@@ -319,7 +347,7 @@ with col1:
         db.commit()
         st.success("Saved to your notebook!")
     
-with col2:  
+with clear_research:  
     if st.button("Clear Research Notebook"):
         c.execute('DELETE FROM notebook')
         db.commit()

@@ -1,6 +1,7 @@
 import os
 from dotenv import load_dotenv
 import requests
+import pandas as pd
 
 load_dotenv()
 
@@ -75,12 +76,35 @@ def get_carbon_factor_pjm():
         "carbon_intensity": data["carbonIntensity"],
         "date_utc": data["datetime"]
     }
+        
+        
+def get_codecarbon_estimate():
+    df = pd.read_csv('emissions.csv')
+    
+    emissions = df['emissions'].sum() * 1000    # g CO2eq
+    energy_consumed = df['energy_consumed'].sum() * 1000   # Wh, sum of cpu_energy, gpu_energy and ram_energy
+    timestamp = df['timestamp'].iloc[-1]
+    
+    # print(emissions)
+    
+    return {"emissions": emissions, "energy_consumed": energy_consumed, "timestamp":timestamp}
+
+
 
 if __name__== "__main__":
-    response_dict = get_carbon_factor("Sweden")
-    if response_dict:
-        print(f"{response_dict["carbon_intensity"]} g CO₂eq/Wh")
-        print(f"UTC Date: {response_dict["date_utc"]}")
+    # response_dict = get_carbon_factor("Sweden")
+    # if response_dict:
+    #     print(f"{response_dict["carbon_intensity"]} g CO₂eq/Wh")
+    #     print(f"UTC Date: {response_dict["date_utc"]}")
         
-    else:
-        print("Failed to fetch data.")
+    # else:
+    #     print("Failed to fetch data.")
+    
+    codecarbon_data = get_codecarbon_estimate()
+    print(f"Emissions: {codecarbon_data["emissions"]}")
+    print(f"Energy: {codecarbon_data["energy_consumed"]}")
+    print(f"Time of calculation: {codecarbon_data["timestamp"]}")
+    # print(get_codecarbon_estimate()["emissions"])
+    # print(get_codecarbon_estimate()["energy_consumed"])
+    # print(get_codecarbon_estimate()["timestamp"])
+    
