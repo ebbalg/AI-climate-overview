@@ -244,6 +244,9 @@ def extract_node(state: ResearchState):
 graph.add_node("extract", extract_node)
 
 def summarize_article(source, query):
+    # TODO: Uncomment for tracking emissions
+    # tracker = OfflineEmissionsTracker(country_iso_code="SWE")
+    # tracker.start()
     summary_prompt = PromptTemplate.from_template(
         """ Research topic: {query}
             Name of article: {article_title}
@@ -264,6 +267,8 @@ def summarize_article(source, query):
         "article_title": source["title"],
         "research_text": source["text"]     # truncate [:4000]?  
     })
+    
+    # tracker.stop()
     
     return {
         "title": source["title"],

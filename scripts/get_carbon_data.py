@@ -79,7 +79,7 @@ def get_carbon_factor_pjm():
         
         
 def get_codecarbon_estimate():
-    df = pd.read_csv('emissions.csv')
+    df = pd.read_csv('codecarbon_logs/emissions_31_july_summarization.csv')
     
     emissions = df['emissions'].sum() * 1000    # g CO2eq
     energy_consumed = df['energy_consumed'].sum() * 1000   # Wh, sum of cpu_energy, gpu_energy and ram_energy
