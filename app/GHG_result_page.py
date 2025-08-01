@@ -100,15 +100,16 @@ st.markdown("""
             border-radius: 6px;
             padding: 6px 15px;
             font-size: 16px;
+            margin-top: 100px;
         }
     </style>
 """, unsafe_allow_html=True)
+
 
 class ResearchState(BaseModel):
     query: str
     search_results: List[Dict] = []
     extracted_docs: List[Dict] = []
-    # summaries: str = ""
     summaries: List[Dict] = []
     sources: List[Dict] = []
 
@@ -133,6 +134,7 @@ llm_model = "gpt-4.1-nano"
 # Back button
 top_col1, _, _ = st.columns([0.1, 0.8, 0.1])
 with top_col1:
+    st.markdown("<div style='margin-top: 30px;'></div>", unsafe_allow_html=True)
     if st.button("Back", key="back"):
         st.session_state.pop("GHG_selected_question", None)
         st.switch_page("GHG_emissions_page.py")
@@ -151,11 +153,10 @@ with research_topic_col:
         st.markdown("> **" + st.session_state["GHG_selected_question"] + "**")
         
     st.markdown("**Research Domains**")
-    included_domains = ["ieeexplore.ieee.org", "springeropen.com", "scienceopen.com", "nature.com", "arxiv.org"]    # Peer-reviewed domains for Tavily search.
-    # markdown_domains = ( "\n".join(f"- {domain}" for domain in included_domains)
+    included_domains = ["ieeexplore.ieee.org", "springeropen.com", "scienceopen.com", "nature.com", "sciencedirect.com", "arxiv.org"]    # Peer-reviewed domains for Tavily search.
     st.markdown("\n".join(f"- {domain}" for domain in included_domains))
 
-with codecarbon_col: #from Codecarbon emissions in kg Co2eq , energy in kWh, this will be converted
+with codecarbon_col: # from Codecarbon emissions in kg Co2eq , energy in kWh, this will be converted
     codecarbon_data = get_codecarbon_estimate()
     
     emissions = codecarbon_data["emissions"]
@@ -223,7 +224,6 @@ def extract_node(state: ResearchState):
     extracted = []
     for url in url_to_title.keys():
         extracted_doc = cached_extract(url)
-        # print("Extracted doc:", extracted_doc)
         
         # TavilyExtract returns a list under "results"
         if isinstance(extracted_doc, dict) and "results" in extracted_doc:
@@ -244,7 +244,7 @@ def extract_node(state: ResearchState):
 graph.add_node("extract", extract_node)
 
 def summarize_article(source, query):
-    # TODO: Uncomment for tracking emissions
+    # Uncomment for tracking emissions:
     # tracker = OfflineEmissionsTracker(country_iso_code="SWE")
     # tracker.start()
     summary_prompt = PromptTemplate.from_template(
@@ -341,68 +341,106 @@ final_state = ResearchState(
     sources = result["sources"]
 )
 
-st.markdown('<h2 style="text-align: left;"> Research Articles </h2>', unsafe_allow_html=True)
+title_col, select_all_col = st.columns([0.90, 0.1])
 
-for source in final_state.summaries:
-    st.markdown(f"[🔗 {source["title"]}]({source["url"]})", unsafe_allow_html=True)
+with title_col:
+    st.markdown('<h2 style="text-align: left;"> Research Articles </h2>', unsafe_allow_html=True)
+    st.markdown(':gray[To save research articles to the Research Notebook, click one or several of the checkboxes below]')
+    
+with select_all_col:
+    if st.button("Select all"):
+        for i in range(len(final_state.summaries)):
+            st.session_state[f"checkbox_{i}"] = True
+    
+    
+c.execute('SELECT url FROM notebook')
+saved_urls = {row[0] for row in c.fetchall()}
+ 
+selected_articles = []
+for i, source in enumerate(final_state.summaries):
+    key = f"checkbox_{i}"
+    if key not in st.session_state:
+        st.session_state[key] = source["url"] in saved_urls
+        
+    col1, col2 = st.columns([0.04, 0.96])  
+
+    with col1:
+        checked = st.checkbox("🔗", key=key)     # value=True if every box should be preselected to true
+
+    with col2:
+        st.markdown(
+            f"<div style='margin-top: 7px'><a href='{source['url']}' target='_blank'> {source['title']}</a></div>",
+            unsafe_allow_html=True)
+
     st.markdown(source["summary"])
     st.markdown("---")
     
-
-save_research, clear_research = st.columns(2)
-with save_research:
-    if st.button("Save to Research Notebook"):
-        for s in final_state.summaries:
-            c.execute('''
-                INSERT OR IGNORE INTO notebook (question, summary, title, url, timestamp)
-                VALUES (?, ?, ?, ?, ?)
-            ''', (final_state.query, s["summary"], s["title"], s["url"], datetime.now().isoformat()))
+    # if checked and not is_saved:
+    if st.session_state[key] and source["url"] not in saved_urls:
+        c.execute('''
+            INSERT OR IGNORE INTO notebook (question, summary, title, url, timestamp)
+            VALUES (?, ?, ?, ?, ?)
+        ''', (final_state.query, source["summary"], source["title"], source["url"], datetime.now().isoformat()))
+        
         db.commit()
-        st.success("Saved to your notebook!")
     
-with clear_research:  
+    # elif not checked and is_saved:
+    elif not st.session_state[key] and source["url"] in saved_urls:
+        c.execute('DELETE FROM notebook WHERE url = ?', (source["url"],))
+        db.commit()
+        # st.info(f"Removed: {source['title']}")
+        st.info("Removed article from Research Notebook")
+    
+    
+with st.sidebar:
     if st.button("Clear Research Notebook"):
         c.execute('DELETE FROM notebook')
         db.commit()
         st.success("Your Research Notebook has been cleared!")
-    
-# View notebook 
-st.markdown('<h2 style="text-align: left;"> Research Notebook </h2>', unsafe_allow_html=True)
+        
+    # View notebook 
+    st.markdown('<h2 style="text-align: left;"> Research Notebook </h2>', unsafe_allow_html=True)
+
+    # Make it possible to search for key terms in summary, title or url
+    search_term = st.text_input("Search Notebook")  
+    if search_term:
+        c.execute('''
+            SELECT question, summary, title, url, timestamp 
+            FROM notebook 
+            WHERE question LIKE ? OR summary LIKE ? OR title LIKE ?
+            ORDER BY timestamp DESC
+        ''', (f'%{search_term}%', f'%{search_term}%',  f'%{search_term}%'))
+       
+    else:
+        c.execute('SELECT question, summary, title, url, timestamp FROM notebook ORDER BY timestamp DESC')
+        
+        
+    rows = c.fetchall()
+    if rows:
+        for row in rows:
+            st.markdown(f"**{row[0]}**  \n_Saved: {row[4]}_", unsafe_allow_html=True)
+            st.markdown(f"[🔗 {row[2]}]({row[3]})", unsafe_allow_html=True)
+            st.markdown(row[1])
+            st.markdown("---")
+    else:
+        if search_term:
+            # If research is saved, but the search query has no match
+            st.info("No search results matched your query. Try something else!")
+            
+        else:  
+            st.info("No entries yet. Save some research!")
 
 
-search_term = st.text_input("Search Notebook")
-if search_term:
-    c.execute('''
-        SELECT question, summary, title, url, timestamp 
-        FROM notebook 
-        WHERE question LIKE ? OR summary LIKE ?
-        ORDER BY timestamp DESC
-    ''', (f'%{search_term}%', f'%{search_term}%'))
-else:
-    c.execute('SELECT question, summary, title, url, timestamp FROM notebook ORDER BY timestamp DESC')
-    
-    
-rows = c.fetchall()
-if rows:
-    for row in rows:
-        st.markdown(f"**{row[0]}**  \n_Saved: {row[4]}_", unsafe_allow_html=True)
-        st.markdown(f"[🔗 {row[2]}]({row[3]})", unsafe_allow_html=True)
-        st.markdown(row[1])
-        st.markdown("---")
-else:
-    st.info("No entries yet. Save some research!")
-
-
-c.execute('SELECT question, summary, title, url, timestamp FROM notebook')
-rows = c.fetchall()
-export = [
-    {"question": r[0], "summary": r[1], "title": r[2], "url": r[3], "timestamp": r[4]}
-    for r in rows
-]
-st.download_button(
-    "⬇ Download Notebook JSON",
-    json.dumps(export, indent=2),
-    file_name="notebook.json",
-    mime="application/json"
-)
-    
+    c.execute('SELECT question, summary, title, url, timestamp FROM notebook')
+    rows = c.fetchall()
+    export = [
+        {"question": r[0], "summary": r[1], "title": r[2], "url": r[3], "timestamp": r[4]}
+        for r in rows
+    ]
+    st.download_button(
+        "⬇ Download Notebook JSON",
+        json.dumps(export, indent=2),
+        file_name="notebook.json",
+        mime="application/json"
+    )
+        
