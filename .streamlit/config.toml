@@ -4,5 +4,5 @@ showSidebarNavigation = false
 [theme]
 backgroundColor="#F6FFF5"
 primaryColor="#6BD0FF"
-secondaryBackgroundColor="#FFFFFF"
+secondaryBackgroundColor="#F8F8F8"
 textColor = "#000000"
