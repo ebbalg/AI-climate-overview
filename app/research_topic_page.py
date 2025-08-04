@@ -9,8 +9,8 @@ load_dotenv()
 
 api_key = os.getenv("OPENAI_API_KEY")
 
-# reading prompt from a file
-with open("app/prompts/emissions_research_prompt.txt", "r", encoding="utf-8") as f:
+# read prompt from a file
+with open("app/prompts/research_prompt.txt", "r", encoding="utf-8") as f:
     prompt = f.read()
 
 @st.cache_data(show_spinner=False)
@@ -30,7 +30,6 @@ def get_questions(prompt_text, api_key):
 with st.spinner("Generating Research Topics..."):
     questions = get_questions(prompt, api_key)
 
-
 st.set_page_config(layout="wide")
 
 st.markdown("""
@@ -44,20 +43,24 @@ st.markdown("""
         .info-card {
             background-color: white;
             border-radius: 12px;
-            padding: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            padding: 20px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
             text-align: left;
+            height: 180px;
+            width: 90%;
         }
         .info-card h4 {
             margin-bottom: 10px;
         }
         .info-card p {
-            margin-bottom: 10px;
+            margin-bottom: 20px;
         }
 
         /* Style Streamlit buttons */
         div.stButton > button:first-child {
-            background-color: #66ccff;
+            /*background-color: #b3bfb2;*/
+            background-color: #a4dffc;
+            /*background-color: #66ccff;*/
             color: black;
             border: none;
             border-radius: 8px;
@@ -68,20 +71,24 @@ st.markdown("""
         div.stButton > button:first-child:hover {
             background-color: #4dc3ff;
         }
-
         .small-card {
-            background-color: #f9f9f9;
+            background-color: #6BD0FF; 
             border-radius: 10px;
             padding: 20px;
             height: 160px;
         }
         .small-card h5 {
-            margin: 0 0 10px 0;
+            margin: 0 0 5px 0;
+        }
+
+        .small-card p {
+            margin: 0 0 0 0; 
         }
 
         /* Back button styling */
         .stButton>button.back {
-            background-color: #66ccff;
+            background-color: #b3bfb2;
+            /*background-color: #66ccff;*/
             color: black;
             border: none;
             border-radius: 6px;
@@ -92,19 +99,26 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 
+
+
 # Back button
 top_col1, _, _ = st.columns([0.1, 0.8, 0.1])
 with top_col1:
     if st.button("Back", key="back"):
-        st.switch_page("general_overview_page.py")
+        st.switch_page("start_page.py")
 
-
-
-st.markdown('<h1 style="text-align: center;"> GHG Emissions from AI </h1>', unsafe_allow_html=True)
-st.markdown('<h4 style="text-align: center;font-weight: normal;">Learn more about the environmental aspects of AI usage that you and your organization can directly impact, and understand the broader context of AI’s environmental footprint.</h4>', unsafe_allow_html=True)
+# Header + subheading
+st.markdown('<h1 style="text-align: center;">Understanding AI’s Environmental Impact</h1>', unsafe_allow_html=True)
+st.markdown('<h4 style="text-align: center;font-weight: normal;">Click to search and learn about the environmental aspects of AI usage that your organization can directly impact, focusing on energy and greenhouse gas emissions.</h4>', unsafe_allow_html=True)
 st.markdown("<br>", unsafe_allow_html=True)
 
-st.markdown('<h5 style="text-align: left;font-weight: bold;">Generated research questions</h5>', unsafe_allow_html=True)
+
+
+with st.spinner("Generating Research Topics..."):
+    questions = get_questions(prompt, api_key)
+
+
+st.markdown('<h5 style="text-align: left;font-weight: bold;">Generated research topics</h5>', unsafe_allow_html=True)
 
 
 def change_button_style(
@@ -115,7 +129,9 @@ def change_button_style(
     font_size="16px",
     padding="12px 20px",
     width="100%",
-    height="auto"
+    height="auto",
+    hover_bg="#F8F8F8",
+    hover_txt="#000"
 ):
     htmlstr = f"""
         <script>
@@ -132,6 +148,15 @@ def change_button_style(
                 elements[i].style.height = "{height}";
                 elements[i].style.textAlign = "left";
                 elements[i].style.lineHeight = "1.4";
+
+                elements[i].onmouseover = function() {{
+                    this.style.backgroundColor = "{hover_bg}";
+                    this.style.color = "{hover_txt}";
+                }};
+                elements[i].onmouseout = function() {{
+                    this.style.backgroundColor = "{bg_hex}";
+                    this.style.color = "{txt_hex}";
+                }};
             }}
         }}
         </script>
@@ -152,13 +177,61 @@ for i, question in enumerate(questions[:6]):  # Limit to 6
 if st.session_state.get("navigate_to_result"):
     st.session_state.pop("GHG_user_question", None)
     st.session_state.pop("navigate_to_result")
-    st.switch_page("GHG_result_page.py")
+    st.switch_page("research_result_page.py")
 
 
-st.markdown('<p style="text-align: left; font-weight: bold; margin-bottom: -5px; font-size: 16px;">I have my own research question</p>', unsafe_allow_html=True)
-GHG_research_query = st.text_input(label="", placeholder="Enter your own research question here")
+input_box_col, _, _ = st.columns(3)
+
+with input_box_col:
+    st.markdown('<p style="text-align: left; font-weight: bold; margin-bottom: -5px; font-size: 16px;">I have my own research question</p>', unsafe_allow_html=True)
+    GHG_research_query = st.text_input(label="", placeholder="Enter your own research question here")
 
 if GHG_research_query:
     st.session_state["GHG_user_question"] = GHG_research_query
     st.session_state.pop("GHG_selected_question", None)  # clear previous selected question
-    st.switch_page("GHG_result_page.py")
+    st.switch_page("research_result_page.py")
+
+
+
+
+# Section: Other considerations
+st.markdown("<br><br>", unsafe_allow_html=True)
+st.markdown("### Other Environmental Considerations")
+
+st.markdown("""
+<p>While this navigator focuses on directly actionable aspects, it’s important to acknowledge that AI’s environmental impact extends beyond energy and carbon emissions. \n Some other examples are listed below.</p>
+""", unsafe_allow_html=True)
+
+c1, c2, c3, c4 = st.columns(4)
+
+with c1:
+    st.markdown("""
+        <div class="small-card">
+            <h5>Water Usage</h5>
+            <p>Data centers require significant water for cooling, but this varies greatly by location and provider.</p>
+        </div>
+    """, unsafe_allow_html=True)
+
+with c2:
+    st.markdown("""
+        <div class="small-card">
+            <h5>Biodiversity</h5>
+            <p>AI infrastructure requires significant land use, although it is difficult to quantify its impact on wildlife.</p>
+        </div>
+    """, unsafe_allow_html=True)
+
+with c3:
+    st.markdown("""
+        <div class="small-card">
+            <h5>Electronic Waste</h5>
+            <p>Hardware lifecycle and disposal impacts are challenging to quantify at the usage level.</p>
+        </div>
+    """, unsafe_allow_html=True)
+
+with c4:
+    st.markdown("""
+        <div class="small-card">
+            <h5>Environmental Contamination</h5>
+            <p style="position: relative; top: -5px; z-index: 10;" > Building AI infrastructure carries the risk of releasing harmful substances into the environment.</p>
+        </div>
+    """, unsafe_allow_html=True)
