@@ -137,12 +137,12 @@ with top_col1:
     st.markdown("<div style='margin-top: 30px;'></div>", unsafe_allow_html=True)
     if st.button("Back", key="back"):
         st.session_state.pop("GHG_selected_question", None)
-        st.switch_page("GHG_emissions_page.py")
+        st.switch_page("research_topic_page.py")
 
 
-st.markdown('<h1 style="text-align: center;"> GHG Emissions from AI </h1>', unsafe_allow_html=True)
+st.markdown('<h1 style="text-align: center;"> AI Environmental Impact Research </h1>', unsafe_allow_html=True)
 
-research_topic_col, codecarbon_col = st.columns(2)
+research_topic_col, codecarbon_col = st.columns([3, 1])
 
 with research_topic_col:
     st.markdown("**Research Topic**")

@@ -27,7 +27,7 @@ space.markdown("<br>", unsafe_allow_html=True)
 st.markdown("""
     <style> 
     div.stButton > button:first-child {
-        background-color: #66ccff;
+        background-color: #a4dffc;
         border-radius: 10px;
         width: 240px;
         height: 170px;
@@ -51,14 +51,14 @@ st.markdown("""
 
 spacer1, col1, gap, col2 , spacer2 = st.columns([0.17, 1, 0.1, 1, 0.01])
 with col1:
-    project_query_option = st.button("I have an AI project idea and want to weigh the benefits with the environmental costs")
+    project_query_option = st.button("I have a AI project idea and want to weigh the benefits with the environmental costs")
 with col2:
-    general_overview_option = st.button("I want to get an overview of AI’s negative impact on the climate")
+    general_overview_option = st.button("I want to get a research overview of AI’s negative impact on the climate")
 
 
 if project_query_option:
     st.switch_page("project_query_page.py")
 
 if general_overview_option:
-    st.switch_page("general_overview_page.py")
+    st.switch_page("research_topic_page.py")
     

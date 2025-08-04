@@ -113,7 +113,7 @@ with st.form("my_form"):
         "Germany", "Greece", "Hungary", "Italy", "Latvia", "Lithuania", "Netherlands", "Norway", "Poland", "Portugal", 
         "Romania", "Serbia", "Slovakia", "Slovenia", "Spain", "Sweden","United Kingdom"]
         location = st.selectbox(
-            "Location",
+            "Location of the data center",
             help = "The country where your AI model will run, usually where the provided cloud server or datacenter is placed.", 
             options=countries,
             placeholder="Country",
