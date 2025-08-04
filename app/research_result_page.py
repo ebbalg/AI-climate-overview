@@ -64,6 +64,29 @@ st.markdown("""
             background-color: #4dc3ff;
         }
 
+        /* Prevent white text when clicking */
+       div.stButton > button {
+            color: black !important;
+        }
+
+        div.stButton > button:active,
+        div.stButton > button:focus,
+        div.stButton > button:visited,
+        div.stButton > button:hover {
+            color: black !important;
+        }
+        
+
+        button[disabled],
+        div.stButton > button:disabled,
+        div.stButton button[data-testid="baseButton-secondary"][disabled] {
+            background-color: #cccccc !important;
+            color: #666666 !important;
+            cursor: not-allowed !important;
+            opacity: 0.7 !important;
+            border: none !important;
+        }
+
         .small-card {
             background-color: #f9f9f9;
             border-radius: 10px;
@@ -356,15 +379,47 @@ title_col, select_all_col = st.columns([0.90, 0.1])
 with title_col:
     st.markdown('<h2 style="text-align: left;"> Research Articles </h2>', unsafe_allow_html=True)
     st.markdown(':gray[To save research articles to the Research Notebook, click one or several of the checkboxes below]')
-    
-with select_all_col:
-    if st.button("Select all"):
-        for i in range(len(final_state.summaries)):
-            st.session_state[f"checkbox_{i}"] = True
-    
-    
+
+
+# ! Button 
+# all_checked = all(st.session_state[f"checkbox_{i}"] for i in range(len(final_state.summaries)))
+
 c.execute('SELECT url FROM notebook')
 saved_urls = {row[0] for row in c.fetchall()}
+
+for i, source in enumerate(final_state.summaries):
+    key = f"checkbox_{i}"
+    if key not in st.session_state:
+        st.session_state[key] = source["url"] in saved_urls
+
+with select_all_col:
+    all_checked = all(st.session_state[f"checkbox_{i}"] for i in range(len(final_state.summaries)))
+    new_state = not all_checked
+    if st.button("Select all  ☑️"):
+        for i in range(len(final_state.summaries)):
+            st.session_state[f"checkbox_{i}"] = new_state
+                      
+            
+# ! Toggle
+# if "select_all" not in st.session_state:
+#     st.session_state["select_all"] = False
+    
+# all_checked = all(st.session_state[f"checkbox_{i}"] for i in range(len(final_state.summaries)))
+# select_all = st.toggle("Select all", value=st.session_state["select_all"])
+
+# with select_all_col:
+#     new_state = not all_checked
+#     if select_all:
+#         st.session_state["select_all"] = select_all
+#         for i in range(len(final_state.summaries)):
+#             st.session_state[f"checkbox_{i}"] = select_all
+#             # st.session_state[f"checkbox_{i}"] = new_state
+            
+#         # st.rerun()
+            
+    
+# c.execute('SELECT url FROM notebook')
+# saved_urls = {row[0] for row in c.fetchall()}
  
 selected_articles = []
 for i, source in enumerate(final_state.summaries):
@@ -393,6 +448,8 @@ for i, source in enumerate(final_state.summaries):
         ''', (final_state.query, source["summary"], source["title"], source["url"], datetime.now().isoformat()))
         
         db.commit()
+        
+        st.session_state["notebook_cleared"] = False  # Re-enable the button
     
     # elif not checked and is_saved:
     elif not st.session_state[key] and source["url"] in saved_urls:
@@ -403,9 +460,23 @@ for i, source in enumerate(final_state.summaries):
     
     
 with st.sidebar:
-    if st.button("Clear Research Notebook"):
+    # Set based on actual DB content — not old state
+    c.execute('SELECT COUNT(*) FROM notebook')
+    notebook_count = c.fetchone()[0]
+    st.session_state["notebook_cleared"] = notebook_count == 0
+
+    clear_disabled = st.session_state["notebook_cleared"]
+
+    clear_clicked = st.button(
+        "Clear Research Notebook",
+        disabled=clear_disabled,
+        key="clear_notebook"
+    )
+
+    if clear_clicked:
         c.execute('DELETE FROM notebook')
         db.commit()
+        st.session_state["notebook_cleared"] = True
         st.success("Your Research Notebook has been cleared!")
         
     # View notebook 
