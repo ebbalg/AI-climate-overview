@@ -382,9 +382,10 @@ with title_col:
 
 
 # ! Button 
-all_checked = all(st.session_state[f"checkbox_{i}"] for i in range(len(final_state.summaries)))
+# all_checked = all(st.session_state[f"checkbox_{i}"] for i in range(len(final_state.summaries)))
 
 with select_all_col:
+    all_checked = all(st.session_state[f"checkbox_{i}"] for i in range(len(final_state.summaries)))
     new_state = not all_checked
     if st.button("Select all  ☑️"):
         for i in range(len(final_state.summaries)):
