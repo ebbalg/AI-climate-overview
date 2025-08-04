@@ -384,6 +384,14 @@ with title_col:
 # ! Button 
 # all_checked = all(st.session_state[f"checkbox_{i}"] for i in range(len(final_state.summaries)))
 
+c.execute('SELECT url FROM notebook')
+saved_urls = {row[0] for row in c.fetchall()}
+
+for i, source in enumerate(final_state.summaries):
+    key = f"checkbox_{i}"
+    if key not in st.session_state:
+        st.session_state[key] = source["url"] in saved_urls
+
 with select_all_col:
     all_checked = all(st.session_state[f"checkbox_{i}"] for i in range(len(final_state.summaries)))
     new_state = not all_checked
@@ -410,8 +418,8 @@ with select_all_col:
 #         # st.rerun()
             
     
-c.execute('SELECT url FROM notebook')
-saved_urls = {row[0] for row in c.fetchall()}
+# c.execute('SELECT url FROM notebook')
+# saved_urls = {row[0] for row in c.fetchall()}
  
 selected_articles = []
 for i, source in enumerate(final_state.summaries):
