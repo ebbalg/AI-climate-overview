@@ -14,6 +14,8 @@ from pydantic import BaseModel
 from typing import List, Dict
 from codecarbon import OfflineEmissionsTracker
 from dotenv import load_dotenv
+from docx import Document
+from io import BytesIO
 
 from datetime import datetime
 
@@ -127,6 +129,14 @@ c.execute('''
         UNIQUE(question, title, url)
     )
 ''')
+
+try:
+    c.execute('ALTER TABLE notebook ADD COLUMN notes TEXT')
+    db.commit()
+except sqlite3.OperationalError:
+    # The column already exists
+    pass
+    
 db.commit()
 
 llm_model = "gpt-4.1-nano"
@@ -153,7 +163,7 @@ with research_topic_col:
         st.markdown("> **" + st.session_state["GHG_selected_question"] + "**")
         
     st.markdown("**Research Domains**")
-    included_domains = ["ieeexplore.ieee.org", "springeropen.com", "scienceopen.com", "nature.com", "sciencedirect.com", "arxiv.org"]    # Peer-reviewed domains for Tavily search.
+    included_domains = ["ieeexplore.ieee.org", "springeropen.com", "scienceopen.com", "nature.com", "sciencedirect.com"]    # Peer-reviewed domains for Tavily search. "arxiv.org" not peer-reviewed.
     st.markdown("\n".join(f"- {domain}" for domain in included_domains))
 
 with codecarbon_col: # from Codecarbon emissions in kg Co2eq , energy in kWh, this will be converted
@@ -417,10 +427,32 @@ with st.sidebar:
         
     rows = c.fetchall()
     if rows:
-        for row in rows:
+        for i, row in enumerate(rows):
             st.markdown(f"**{row[0]}**  \n_Saved: {row[4]}_", unsafe_allow_html=True)
             st.markdown(f"[🔗 {row[2]}]({row[3]})", unsafe_allow_html=True)
             st.markdown(row[1])
+            
+            # Load existing note from DB
+            c.execute('SELECT notes FROM notebook WHERE url = ?', (row[3],))
+            note_row = c.fetchone()
+            existing_note = note_row[0] if note_row and note_row[0] else ""
+
+            # Editable text area
+            note_input = st.text_area(
+                label="Notes",
+                value=existing_note,
+                key=f"note_sidebar_{i}",
+                height=100,
+                label_visibility="visible",
+                placeholder="Why did you save this article?"
+            )
+
+            # Save back to DB if changed
+            if note_input != existing_note:
+                c.execute('UPDATE notebook SET notes = ? WHERE url = ?', (note_input, row[3]))
+                db.commit()
+                st.success(f"Note saved for: {row[2]}")
+
             st.markdown("---")
     else:
         if search_term:
@@ -431,16 +463,58 @@ with st.sidebar:
             st.info("No entries yet. Save some research!")
 
 
-    c.execute('SELECT question, summary, title, url, timestamp FROM notebook')
+    c.execute('SELECT question, summary, title, url, timestamp, notes FROM notebook')
     rows = c.fetchall()
     export = [
-        {"question": r[0], "summary": r[1], "title": r[2], "url": r[3], "timestamp": r[4]}
+        {"question": r[0], "summary": r[1], "title": r[2], "url": r[3], "timestamp": r[4], "notes": r[5]}
         for r in rows
     ]
+    
+    
+    def create_word_doc(json_data, title="Research Notebook"):
+        doc = Document()
+        doc.add_heading(title, level=1)
+        for i, item in enumerate(json_data, 1):
+            p = doc.add_paragraph()
+            p.add_run("\n")
+            p.add_run(f"{i}. Title: ").bold = True
+            p.add_run(item['title'])
+            p = doc.add_paragraph()
+            p.add_run("Topic: ").bold = True
+            p.add_run(item['question'])
+            p = doc.add_paragraph()
+            p.add_run("Summary: ").bold = True
+            p.add_run(item['summary'])
+            p = doc.add_paragraph()
+            p.add_run("URL: ").bold = True
+            p.add_run({item['url']})
+            
+            try:
+                dt = datetime.fromisoformat(item['timestamp'])
+                formatted_time = dt.strftime("%B %d, %Y at %I:%M %p")
+            except Exception:
+                formatted_time = item['timestamp']  # fallback 
+
+            p = doc.add_paragraph()
+            p.add_run("Timestamp: ").bold = True
+            p.add_run(formatted_time)
+            
+            p = doc.add_paragraph()
+            p.add_run("Notes: ").bold = True
+            p.add_run(item['notes'])
+            p.add_run("\n\n")
+
+        buffer = BytesIO()
+        doc.save(buffer)
+        buffer.seek(0)
+        return buffer
+
+    word_file = create_word_doc(export)
+
     st.download_button(
-        "⬇ Download Notebook JSON",
-        json.dumps(export, indent=2),
-        file_name="notebook.json",
-        mime="application/json"
+        "⬇ Download Notebook File",
+        word_file,
+        file_name="notebook.docx",
+        mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
     )
-        
+            
