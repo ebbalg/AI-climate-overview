@@ -110,11 +110,54 @@ st.markdown(body='<h1 style="text-align: center"> Climate Impact Overview </h1>'
 space = st.empty()
 space.markdown("<br>", unsafe_allow_html=True)
 
-with st.container(border=True):
-    challenge = st.text_input("Your challenge", f"{st.session_state['challenge']}")
+#with st.container(border=True):
+    #challenge = st.text_input("Your challenge", f"{st.session_state['challenge']}")
     
-    ai_function = st.text_input("Chosen functionality", f"{st.session_state['ai_function']}")
+    #ai_function = st.text_input("Chosen functionality", f"{st.session_state['ai_function']}")
 
+# def custom_metric(label, value, tooltip_text):
+#     html = f"""
+#     <style>
+#     .tooltip-container {{
+#         position: relative;
+#         display: inline-block;
+#     }}
+
+#     .tooltip-container .tooltip-text {{
+#         visibility: hidden;
+#         width: 300px;
+#         background-color: #f0f0f0;
+#         text-align: left;
+#         border-radius: 6px;
+#         color: black;
+#         padding: 8px;
+#         position: absolute;
+#         bottom: -5px;
+#         left: 25px;
+#         z-index: 1;
+#         transform: translateY(100%);
+#         font-size: 12px;
+#     }}
+
+#     .tooltip-container:hover .tooltip-text {{
+#         visibility: visible;
+#     }}
+#     </style>
+
+#     <div style="border: 1px solid #DDD; border-radius: 10px; width:250px; padding: 12px; background-color: #FAFAFA; text-align: left;">
+#         <div style="font-weight: 600; font-size: 16px;">
+#             {label}
+    
+#         <div style="font-size: 20px; color: green; margin-top: 4px; text-align: center;">{value}
+#         <span class="tooltip-container">
+#                 <span style="cursor: pointer;">{"💡"}</span>
+#                 <span class="tooltip-text">{tooltip_text}</span>
+#             </span>
+#         </div>
+#     </div>
+#     """
+
+    
 def custom_metric(label, value, tooltip_text):
     html = f"""
     <style>
@@ -159,6 +202,8 @@ def custom_metric(label, value, tooltip_text):
 
     st.markdown(html, unsafe_allow_html=True)
     
+
+    
 ai_functionality_choice = st.session_state["ai_function"] 
 
 if ai_functionality_choice == "Text generation":
@@ -187,9 +232,18 @@ data_retrieval_time_utc = country_emissions_data["date_utc"]
 dt = datetime.strptime(data_retrieval_time_utc, "%Y-%m-%dT%H:%M:%S%z")
 data_retrieval_time_utc = dt.strftime("%B %d, %Y at %I:%M %p UTC")
     
-col1, col2 = st.columns([1, 3])
+col1, col2 = st.columns([1,3])
+
+
 
 with col1:
+    custom_metric(
+            f"Chosen functionality: {st.session_state['ai_function']}",
+            f" ",
+            f" "
+        )
+
+
     custom_metric(
         f"Estimated energy consumption per query in {st.session_state['location']}",
         f"{avg_gpu_energy:.4g} Wh",
@@ -243,8 +297,14 @@ with col2:
         europe_df['emissions_per_query'] = europe_df['emissions_intensity_gco2_per_kwh'].apply(
         lambda x: calculate_average_emissions_per_energy(x, avg_gpu_energy))
         
-        st.markdown(f"Running your model on a cloud server or datacenter in {st.session_state['location']} would yield around {estimated_emissions:.4g} g CO₂eq per query according to Nowtricity data retreved on {data_retrieval_time_utc}.")
-        st.markdown("Comparing the corresponding estimated emissions of the model with a European context to that with a global average carbon intensity factor or a US factor between 2024-2025. Please note that this is historical data. The energy mix and the emissions levels might change in the future.")
+        # Short summary shown by default
+        st.write(
+            f"Running your model in **{st.session_state['location']}** yields around "
+            f"**{estimated_emissions:.4g} g CO₂eq per query** (Nowtricity, {data_retrieval_time_utc}). Compare this with historical global, US and European averages for the period 2024–2025."
+        )
+ 
+        #st.markdown(f"Running your model on a cloud server or datacenter in {st.session_state['location']} would yield around {estimated_emissions:.4g} g CO₂eq per query according to Nowtricity data retrieved on {data_retrieval_time_utc}.")
+        #st.markdown("Comparing the corresponding estimated emissions of the model with a European context to that with a global average carbon intensity factor or a US factor between 2024-2025. Please note that this is historical data. The energy mix and the emissions levels might change in the future.")
 
         global_df['source'] = 'Global'
         us_df['source'] = 'US'
@@ -321,7 +381,7 @@ with col2:
         data_retrieval_time_utc_pjm = dt_pjm.strftime("%B %d, %Y at %I:%M %p UTC")
         estimated_emissions_pjm = calculate_average_emissions_per_energy(carbon_intensity_pjm, avg_gpu_energy) 
         
-        st.markdown("A common data center location for cloud providers like Azure and Amazon Web Services is the East US region, where the PJM grid region is one of the largest power grid operators.")
+        st.markdown("A common data center location for cloud providers like Azure and Amazon Web Services, is the East US region, where the PJM grid region is one of the largest power grid operators.")
         st.markdown(f"Running the model on a data center in East US might produce around {estimated_emissions_pjm:.4g} g CO₂eq, according to data from the Electricity Maps API retrieved {data_retrieval_time_utc_pjm}.")
         
         percent_diff = ((estimated_emissions_pjm - estimated_emissions) / estimated_emissions_pjm) * 100
@@ -329,8 +389,11 @@ with col2:
         Running your AI service in **{st.session_state['location']}** is currently approximately **{percent_diff:.2g}% cleaner** per query than the current US East grid. 
         """)
         
-        with st.expander("Data sources"):
+        with st.expander("Further details"):
+            st.write("Comparing the corresponding estimated emissions of the model with a European context to that with a global average carbon intensity factor or a US factor between 2024-2025. Please note that this is historical data. The energy mix and the emissions levels might change in the future.")
+
             st.write("""
+            Data
             - **Energy per query**: From the AI Energy Score Leaderboard.
             - **Local carbon intensity**: Retrieved from Nowtricity for your selected region.
             - **US and Global averages**: Monthly carbon intensity data from Ember Climate Reports.
