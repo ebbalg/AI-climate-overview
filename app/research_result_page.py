@@ -127,6 +127,28 @@ st.markdown("""
             font-size: 16px;
             margin-top: 100px;
         }
+
+        /* only style buttons inside .clear-btn-container */
+        .clear-btn-container .stButton > button {
+            background-color: #F2AA9D !important;
+            color: black !important;
+        }
+        .clear-btn-container .stButton > button:hover {
+            background-color: #E38A79 !important;
+        }
+        /* keep your disabled style too */
+        .clear-btn-container button:disabled {
+            background-color: #cccccc !important;
+            color: #666666 !important;
+        }
+        /* now override just the first sidebar button (Clear) */
+        [data-testid="stSidebar"] .stButton:nth-of-type(1) > button {
+        background-color: #F2AA9D !important;
+        color: black      !important;
+        }
+        [data-testid="stSidebar"] .stButton:nth-of-type(1) > button:hover {
+        background-color: #E38A79 !important;
+        }
     </style>
 """, unsafe_allow_html=True)
 
@@ -458,26 +480,37 @@ for i, source in enumerate(final_state.summaries):
         # st.info(f"Removed: {source['title']}")
         st.info("Removed article from Research Notebook")
     
-    
+
+
 with st.sidebar:
     # Set based on actual DB content — not old state
+
+    # Always fetch the latest count from DB
     c.execute('SELECT COUNT(*) FROM notebook')
     notebook_count = c.fetchone()[0]
+
+    # # Let the button be enabled if there's at least one saved article
     st.session_state["notebook_cleared"] = notebook_count == 0
-
-    clear_disabled = st.session_state["notebook_cleared"]
-
+    clear_disabled = notebook_count == 0
+    
+    st.markdown('<div class="clear-btn-container">', unsafe_allow_html=True)
     clear_clicked = st.button(
         "Clear Research Notebook",
         disabled=clear_disabled,
         key="clear_notebook"
-    )
+     )
+    st.markdown('</div>', unsafe_allow_html=True)
+
 
     if clear_clicked:
         c.execute('DELETE FROM notebook')
         db.commit()
         st.session_state["notebook_cleared"] = True
+        clear_disabled = True   
         st.success("Your Research Notebook has been cleared!")
+
+
+    
         
     # View notebook 
     st.markdown('<h2 style="text-align: left;"> Research Notebook </h2>', unsafe_allow_html=True)
