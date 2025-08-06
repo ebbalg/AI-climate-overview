@@ -12,18 +12,18 @@ st.markdown("""
         }
         .info-card {
             background-color: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            border-radius: 0.75rem;
+            padding: 1.25rem;
+            box-shadow: 0 0.125rem 0.625rem rgba(0,0,0,0.05);
             text-align: left;
-            height: 180px;
+            height: 11.25rem;
             width: 90%;
         }
         .info-card h4 {
-            margin-bottom: 10px;
+            margin-bottom: 0.625rem;
         }
         .info-card p {
-            margin-bottom: 20px;
+            margin-bottom: 1.25rem;
         }
 
         /* Style Streamlit buttons */
@@ -31,9 +31,9 @@ st.markdown("""
             background-color: #66ccff;
             color: black;
             border: none;
-            border-radius: 8px;
-            padding: 8px 20px;
-            font-size: 16px;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1.25rem;
+            font-size: 1rem;
             cursor: pointer;
         }
         div.stButton > button:first-child:hover {
@@ -42,12 +42,12 @@ st.markdown("""
 
         .small-card {
             background-color: #f9f9f9;
-            border-radius: 10px;
-            padding: 20px;
-            height: 160px;
+            border-radius: 0.625rem;
+            padding: 1.25rem;
+            height: 10rem;
         }
         .small-card h5 {
-            margin: 0 0 10px 0;
+            margin: 0 0 0.625rem 0;
         }
 
         /* Back button styling */
@@ -55,9 +55,9 @@ st.markdown("""
             background-color: #66ccff;
             color: black;
             border: none;
-            border-radius: 6px;
-            padding: 6px 15px;
-            font-size: 16px;
+            border-radius: 0.375rem;
+            padding: 0.375rem 0.938rem;
+            font-size: 1rem;
         }
 
         /* targets only the Analyze Climate Impact form submit button */

@@ -38,16 +38,16 @@ st.markdown("""
         }
         .info-card {
             background-color: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            border-radius: 0.75rem;
+            padding: 1.25rem;
+            box-shadow: 0 0.125rem 0.625rem rgba(0,0,0,0.05);
             text-align: left;
         }
         .info-card h4 {
-            margin-bottom: 10px;
+            margin-bottom: 0.625rem;
         }
         .info-card p {
-            margin-bottom: 20px;
+            margin-bottom: 1.25rem;
         }
 
         /* Style Streamlit buttons */
@@ -55,9 +55,9 @@ st.markdown("""
             background-color: #66ccff;
             color: black;
             border: none;
-            border-radius: 8px;
-            padding: 8px 20px;
-            font-size: 16px;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1.25rem;
+            font-size: 1rem;
             cursor: pointer;
         }
         div.stButton > button:first-child:hover {
@@ -89,32 +89,32 @@ st.markdown("""
 
         .small-card {
             background-color: #f9f9f9;
-            border-radius: 10px;
-            padding: 20px;
-            height: 160px;
+            border-radius: 0.625rem;
+            padding: 1.25rem;
+            height: 10rem;
         }
         .small-card h5 {
-            margin: 0 0 10px 0;
+            margin: 0 0 0.625rem 0;
         }
 
         /* Custom styling for summary card */
         .summary-card {
             background-color: #f0f8ff;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-radius: 0.625rem;
+            padding: 1.25rem;
+            box-shadow: 0 0.125rem 0.625rem rgba(0,0,0,0.1);
             text-align: left;
-            margin-bottom: 20px;
+            margin-bottom: 1.25rem;
         }
 
         /* Custom styling for references card */
         .references-card {
             background-color: #f0f8ff;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-radius: 0.625rem;
+            padding: 1.25rem;
+            box-shadow: 0 0.125rem 0.625rem rgba(0,0,0,0.1);
             text-align: left;
-            margin-bottom: 20px;
+            margin-bottom: 1.25rem;
         }
 
         /* Back button styling */
@@ -122,10 +122,10 @@ st.markdown("""
             background-color: #66ccff;
             color: black;
             border: none;
-            border-radius: 6px;
-            padding: 6px 15px;
-            font-size: 16px;
-            margin-top: 100px;
+            border-radius: 0.375rem;
+            padding: 0.375rem 0.938rem;
+            font-size: 1rem;
+            margin-top: 6.25rem;
         }
 
         /* only style buttons inside .clear-btn-container */
@@ -189,7 +189,7 @@ llm_model = "gpt-4.1-nano"
 # Back button
 top_col1, _, _ = st.columns([0.1, 0.8, 0.1])
 with top_col1:
-    st.markdown("<div style='margin-top: 30px;'></div>", unsafe_allow_html=True)
+    st.markdown("<div style='margin-top: 1.875rem;'></div>", unsafe_allow_html=True)
     if st.button("Back", key="back"):
         st.session_state.pop("GHG_selected_question", None)
         st.switch_page("research_topic_page.py")
@@ -456,7 +456,7 @@ for i, source in enumerate(final_state.summaries):
 
     with col2:
         st.markdown(
-            f"<div style='margin-top: 7px'><a href='{source['url']}' target='_blank'> {source['title']}</a></div>",
+            f"<div style='margin-top: 0.438rem'><a href='{source['url']}' target='_blank'> {source['title']}</a></div>",
             unsafe_allow_html=True)
 
     st.markdown(source["summary"])

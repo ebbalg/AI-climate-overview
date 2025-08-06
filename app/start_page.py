@@ -28,9 +28,9 @@ st.markdown("""
     <style> 
     div.stButton > button:first-child {
         background-color: #a4dffc;
-        border-radius: 10px;
-        width: 240px;
-        height: 170px;
+        border-radius: 0.625rem;
+        width: 15rem;
+        height: 10.625rem;
         padding: 0.75em 1.5em;
         cursor: pointer;
         text-align: center;
@@ -44,7 +44,7 @@ st.markdown("""
     div.stButton > button:first-child:hover {
         background-color: #85d8ff;
         color: black;
-        border: 1px solid #66ccff;
+        border: 0.063rem solid #66ccff;
     }   
     </style>
     """, unsafe_allow_html=True)

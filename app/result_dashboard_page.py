@@ -22,18 +22,18 @@ st.markdown("""
         }
         .info-card {
             background-color: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            border-radius: 0.75rem;
+            padding: 1.25rem;
+            box-shadow: 0 0.125rem 0.625rem rgba(0,0,0,0.05);
             text-align: left;
-            height: 180px;
+            height: 11.25rem;
             width: 90%;
         }
         .info-card h4 {
-            margin-bottom: 10px;
+            margin-bottom: 0.625rem;
         }
         .info-card p {
-            margin-bottom: 20px;
+            margin-bottom: 1.25rem;
         }
 
         /* Style Streamlit buttons */
@@ -41,9 +41,9 @@ st.markdown("""
             background-color: #66ccff;
             color: black;
             border: none;
-            border-radius: 8px;
-            padding: 8px 20px;
-            font-size: 16px;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1.25rem;
+            font-size: 1rem;
             cursor: pointer;
         }
         div.stButton > button:first-child:hover {
@@ -52,12 +52,12 @@ st.markdown("""
 
         .small-card {
             background-color: #f9f9f9;
-            border-radius: 10px;
-            padding: 20px;
-            height: 160px;
+            border-radius: 0.625rem;
+            padding: 1.25rem;
+            height: 10rem;
         }
         .small-card h5 {
-            margin: 0 0 10px 0;
+            margin: 0 0 0.625rem 0;
         }
 
         /* Back button styling */
@@ -65,9 +65,9 @@ st.markdown("""
             background-color: #66ccff;
             color: black;
             border: none;
-            border-radius: 6px;
-            padding: 6px 15px;
-            font-size: 16px;
+            border-radius: 0.375rem;
+            padding: 0.375rem 0.938rem;
+            font-size: 1rem;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -76,12 +76,12 @@ st.markdown("""
 st.markdown("""
     <style>
     .bordered-container {
-        border: 2px solid #000;
-        border-radius: 8px;
-        padding: 16px;
+        border: 0.125rem solid #000;
+        border-radius: 0.5rem;
+        padding: 1rem;
         width: 100%;
         box-sizing: border-box;
-        max-width: 500px;
+        max-width: 31.25rem;
         margin: 0 auto;
         background-color: #f9f9f9;
     }
@@ -98,12 +98,6 @@ if "ai_function" not in st.session_state:
     st.error("No AI functionality selected. Please go back and complete the form.")
     st.stop()
     
-    
-# if "tracker" not in st.session_state:
-#     st.session_state.tracker = OfflineEmissionsTracker(project_name="AI-climate-overview", output_dir="codecarbon_logs",
-#         output_file="emissions.csv")
-    
-#     st.session_state.tracker.start()
 
 st.markdown(body='<h1 style="text-align: center"> Climate Impact Overview </h1>', unsafe_allow_html=True)
 space = st.empty()
@@ -117,8 +111,8 @@ space.markdown("<br>", unsafe_allow_html=True)
 
 def custom_card(label):
     html = f"""
-    <div style="border: 1px solid #DDD; border-radius: 10px; width:250px; padding: 12px; background-color: #FAFAFA; text-align: center;">
-        <div style="font-weight: 600; font-size: 16px; margin-bottom: 4px;">
+    <div style="border: 0.063rem solid #DDD; border-radius: 0.625rem; width:15.625rem; padding: 0.75rem; background-color: #FAFAFA; text-align: center;">
+        <div style="font-weight: 600; font-size: 1rem; margin-bottom: 0.25rem;">
             {label}
         </div>
     </div>
@@ -136,18 +130,18 @@ def custom_metric(label, value, tooltip_text):
 
     .tooltip-container .tooltip-text {{
         visibility: hidden;
-        width: 300px;
+        width: 18.75rem;
         background-color: #f0f0f0;
         text-align: center;
-        border-radius: 6px;
+        border-radius: 0.375rem;
         color: black;
-        padding: 8px;
+        padding: 0.5rem;
         position: absolute;
-        bottom: -5px;
-        left: 25px;
+        bottom: -0.313rem;
+        left: 1.563rem;
         z-index: 1;
         transform: translateY(100%);
-        font-size: 12px;
+        font-size: 0.75rem;
     }}
 
     .tooltip-container:hover .tooltip-text {{
@@ -155,11 +149,11 @@ def custom_metric(label, value, tooltip_text):
     }}
     </style>
 
-    <div style="border: 1px solid #DDD; border-radius: 10px; width:250px; padding: 12px; background-color: #FAFAFA; text-align: center;">
-        <div style="font-weight: 600; font-size: 16px;">
+    <div style="border: 0.063rem solid #DDD; border-radius: 0.625rem; width:15.625rem; padding: 0.75rem; background-color: #FAFAFA; text-align: center;">
+        <div style="font-weight: 600; font-size: 1rem;">
             {label}
         </div>
-        <div style="font-size: 20px; color: green; margin-top: 4px; text-align: center;">{value}
+        <div style="font-size: 1.25rem; color: green; margin-top: 0.25rem; text-align: center;">{value}
         <span class="tooltip-container">
                 <span style="cursor: pointer;">{"💡"}</span>
                 <span class="tooltip-text">{tooltip_text}</span>
@@ -200,7 +194,7 @@ data_retrieval_time_utc = country_emissions_data["date_utc"]
 dt = datetime.strptime(data_retrieval_time_utc, "%Y-%m-%dT%H:%M:%S%z")
 data_retrieval_time_utc = dt.strftime("%B %d, %Y at %I:%M %p UTC")
     
-col1, col2 = st.columns([1,3])
+col1, col2 = st.columns([0.20, 0.80])
 
 
 
@@ -445,21 +439,21 @@ with tab2:
     with col1:
         with st.container(border=True, height=200):
             st.markdown(body='<h3 style="text-align: center"> Development  </h3>', unsafe_allow_html=True)
-            st.markdown('<p style="text-align: center; font-size: 14px; font-weight: normal;">'
+            st.markdown('<p style="text-align: center; font-size: 0.875rem; font-weight: normal;">'
             'Building AI infrastructure, such as hardware components and grid connection, requires natural resources and transportation.'
             '</p>', unsafe_allow_html = True)
     
     with col2:
         with st.container(border=True, height=200):
             st.markdown(body='<h3 style="text-align: center"> Training </h3>', unsafe_allow_html=True)
-            st.markdown('<p style="text-align: center; font-size: 14px; font-weight: normal;">''Data centers consumes energy during the training stage of GenAI. The emissions produced by this stage varies with the carbon intensity of the local energy mix'
+            st.markdown('<p style="text-align: center; font-size: 0.875rem; font-weight: normal;">''Data centers consumes energy during the training stage of GenAI. The emissions produced by this stage varies with the carbon intensity of the local energy mix'
             '</p>', unsafe_allow_html = True)
     
 
     with col3:
         with st.container(border=True, height=200):
             st.markdown(body='<h3 style="text-align: center"> Inference </h3>', unsafe_allow_html=True)
-            st.markdown('<p style="text-align: center; font-size: 14px; font-weight: normal;">'
+            st.markdown('<p style="text-align: center; font-size: 0.875rem; font-weight: normal;">'
             'When using GenAI, the energy consumed and emission produce varies depending on the size of the model and the type of utilization, such as a simple text prompt or video generation.'
             '</p>', unsafe_allow_html = True)
     
@@ -469,7 +463,7 @@ with tab2:
     with col4:
         with st.container(border=True, height=200):
             st.markdown(body='<h3 style="text-align: center"> Retirement </h3>', unsafe_allow_html=True)
-            st.markdown('<p style="text-align: center; font-size: 14px; font-weight: normal;">'
+            st.markdown('<p style="text-align: center; font-size: 0.875rem; font-weight: normal;">'
             'GenAI models retire when newer versions are developed or when the model can not be maintained. During its end-of-life stage, the hardware must be properly disposed to avoid environmental contamination.'
             '</p>', unsafe_allow_html = True)
             

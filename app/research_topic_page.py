@@ -42,18 +42,18 @@ st.markdown("""
         }
         .info-card {
             background-color: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+            border-radius: 0.75rem;
+            padding: 1.25rem;
+            box-shadow: 0 0.5rem 1.875rem rgba(0, 0, 0, 0.15);
             text-align: left;
-            height: 180px;
+            height: 11.25rem;
             width: 90%;
         }
         .info-card h4 {
-            margin-bottom: 10px;
+            margin-bottom: 0.625rem;
         }
         .info-card p {
-            margin-bottom: 20px;
+            margin-bottom: 1.25rem;
         }
 
         /* Style Streamlit buttons */
@@ -63,9 +63,9 @@ st.markdown("""
             /*background-color: #66ccff;*/
             color: black;
             border: none;
-            border-radius: 8px;
-            padding: 8px 20px;
-            font-size: 16px;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1.25rem;
+            font-size: 1rem;
             cursor: pointer;
         }
         div.stButton > button:first-child:hover {
@@ -73,12 +73,12 @@ st.markdown("""
         }
         .small-card {
             background-color: #6BD0FF; 
-            border-radius: 10px;
-            padding: 20px;
-            height: 160px;
+            border-radius: 0.625rem;
+            padding: 1.25rem;
+            height: 10rem;
         }
         .small-card h5 {
-            margin: 0 0 5px 0;
+            margin: 0 0 0.313rem 0;
         }
 
         .small-card p {
@@ -91,9 +91,9 @@ st.markdown("""
             /*background-color: #66ccff;*/
             color: black;
             border: none;
-            border-radius: 6px;
-            padding: 6px 15px;
-            font-size: 16px;
+            border-radius: 0.375rem;
+            padding: 0.375rem 0.938rem;
+            font-size: 1rem;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -125,9 +125,9 @@ def change_button_style(
     wgt_txt,
     bg_hex="#f5f5f5",
     txt_hex="#333",
-    border_radius="10px",
-    font_size="16px",
-    padding="12px 20px",
+    border_radius="0.625rem",
+    font_size="1rem",
+    padding="0.75rem 1.25rem",
     width="100%",
     height="auto",
     hover_bg="#F8F8F8",
@@ -143,7 +143,7 @@ def change_button_style(
                 elements[i].style.borderRadius = "{border_radius}";
                 elements[i].style.padding = "{padding}";
                 elements[i].style.fontSize = "{font_size}";
-                elements[i].style.border = "1px solid #ddd";
+                elements[i].style.border = "0.063rem solid #ddd";
                 elements[i].style.width = "{width}";
                 elements[i].style.height = "{height}";
                 elements[i].style.textAlign = "left";
@@ -171,7 +171,7 @@ for i, question in enumerate(questions[:6]):  # Limit to 6
         if st.button(question, key=f"question_{i}"):
             st.session_state["GHG_selected_question"] = question
             st.session_state["navigate_to_result"] = True
-        change_button_style(question, bg_hex="#FFFFFF", txt_hex="black", height="120px")
+        change_button_style(question, bg_hex="#FFFFFF", txt_hex="black", height="7.5rem")
 
 
 if st.session_state.get("navigate_to_result"):
@@ -183,7 +183,7 @@ if st.session_state.get("navigate_to_result"):
 input_box_col, _, _ = st.columns(3)
 
 with input_box_col:
-    st.markdown('<p style="text-align: left; font-weight: bold; margin-bottom: -5px; font-size: 16px;">I have my own research question</p>', unsafe_allow_html=True)
+    st.markdown('<p style="text-align: left; font-weight: bold; margin-bottom: -0.313rem; font-size: 1rem;">I have my own research question</p>', unsafe_allow_html=True)
     GHG_research_query = st.text_input(label="", placeholder="Enter your own research question here")
 
 if GHG_research_query:
@@ -232,6 +232,6 @@ with c4:
     st.markdown("""
         <div class="small-card">
             <h5>Environmental Contamination</h5>
-            <p style="position: relative; top: -5px; z-index: 10;" > Building AI infrastructure carries the risk of releasing harmful substances into the environment.</p>
+            <p style="position: relative; top: -0.313rem; z-index: 10;" > Building AI infrastructure carries the risk of releasing harmful substances into the environment.</p>
         </div>
     """, unsafe_allow_html=True)
