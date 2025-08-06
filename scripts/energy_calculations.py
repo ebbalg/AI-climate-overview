@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import os
 import pandas as pd
-# from codecarbon import EmissionsTracker
+from codecarbon import EmissionsTracker
 
 # tracker = EmissionsTracker()
 
@@ -55,7 +55,7 @@ def compare_with_average(model_obj, avg_gpu_energy):
 
 def get_comparison_df(model_obj, avg_gpu_energy):
     comparison_data = pd.DataFrame({
-            "Model": [model_obj["model"], "Leaderboard average"],
+            "Model": [model_obj["model"], "Average"],
             "Energy (Wh)": [model_obj["total_gpu_energy"], avg_gpu_energy]
     })
     
@@ -80,6 +80,8 @@ def calculate_average_emissions_per_energy(carbon_intensity, avg_energy_Wh):
  
 if __name__=='__main__':
     # try:
+    
+    # tracker.start()
     best_model_obj = find_lowest_energy_model("text_generation.csv")
     # print(best_model_obj)
 
@@ -93,6 +95,9 @@ if __name__=='__main__':
     
     for model in get_all_models_for_task("text_generation.csv"):
         print(model)
+        
+        
+    # tracker.stop()
 
 
     # finally:

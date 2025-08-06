@@ -212,7 +212,7 @@ with research_topic_col:
     st.markdown("\n".join(f"- {domain}" for domain in included_domains))
 
 with codecarbon_col: # from Codecarbon emissions in kg Co2eq , energy in kWh, this will be converted
-    codecarbon_data = get_codecarbon_estimate()
+    codecarbon_data = get_codecarbon_estimate("codecarbon_logs/emissions_31_july_summarization.csv")
     
     emissions = codecarbon_data["emissions"]
     energy_consumed = codecarbon_data["energy_consumed"]

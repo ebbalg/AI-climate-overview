@@ -2,6 +2,13 @@ import os
 from dotenv import load_dotenv
 import requests
 import pandas as pd
+import sys
+from codecarbon import EmissionsTracker
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from scripts.energy_calculations import (calculate_average_gpu_energy, find_lowest_energy_model, compare_with_average, get_comparison_df, calculate_average_emissions_per_energy, get_all_models_for_task)
+
+# tracker = EmissionsTracker()
 
 load_dotenv()
 
@@ -78,8 +85,8 @@ def get_carbon_factor_pjm():
     }
         
         
-def get_codecarbon_estimate():
-    df = pd.read_csv('codecarbon_logs/emissions_31_july_summarization.csv')
+def get_codecarbon_estimate(filename):
+    df = pd.read_csv(filename)
     
     emissions = df['emissions'].sum() * 1000    # g CO2eq
     energy_consumed = df['energy_consumed'].sum() * 1000   # Wh, sum of cpu_energy, gpu_energy and ram_energy
@@ -92,18 +99,38 @@ def get_codecarbon_estimate():
 
 
 if __name__== "__main__":
-    # response_dict = get_carbon_factor("Sweden")
-    # if response_dict:
-    #     print(f"{response_dict["carbon_intensity"]} g CO₂eq/Wh")
-    #     print(f"UTC Date: {response_dict["date_utc"]}")
+    # tracker.start()
+    response_dict_swe = get_carbon_factor("Sweden")
         
-    # else:
-    #     print("Failed to fetch data.")
+    response_dict_pjm = get_carbon_factor_pjm()
     
-    codecarbon_data = get_codecarbon_estimate()
-    print(f"Emissions: {codecarbon_data["emissions"]}")
-    print(f"Energy: {codecarbon_data["energy_consumed"]}")
-    print(f"Time of calculation: {codecarbon_data["timestamp"]}")
+    
+    best_model_obj = find_lowest_energy_model("text_generation.csv")
+    # print(best_model_obj)
+
+    avg_gpu_energy = calculate_average_gpu_energy("text_generation.csv")
+    print("Best energy: ", best_model_obj["total_gpu_energy"])
+    print("Average energy: ", avg_gpu_energy)
+    
+    print(compare_with_average(best_model_obj, avg_gpu_energy))
+    
+    print(get_comparison_df(best_model_obj, avg_gpu_energy))
+        
+        
+    print(calculate_average_emissions_per_energy(response_dict_swe["carbon_intensity"], avg_gpu_energy))
+    print(calculate_average_emissions_per_energy(response_dict_pjm["carbon_intensity"], avg_gpu_energy))
+    
+    for model in get_all_models_for_task("text_generation.csv"):
+        print(model)
+        
+        
+    # tracker.stop()
+        
+    
+    # codecarbon_data = get_codecarbon_estimate()
+    # print(f"Emissions: {codecarbon_data["emissions"]}")
+    # print(f"Energy: {codecarbon_data["energy_consumed"]}")
+    # print(f"Time of calculation: {codecarbon_data["timestamp"]}")
     # print(get_codecarbon_estimate()["emissions"])
     # print(get_codecarbon_estimate()["energy_consumed"])
     # print(get_codecarbon_estimate()["timestamp"])
