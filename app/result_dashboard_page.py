@@ -115,48 +115,46 @@ space.markdown("<br>", unsafe_allow_html=True)
     
     #ai_function = st.text_input("Chosen functionality", f"{st.session_state['ai_function']}")
 
-# def custom_metric(label, value, tooltip_text):
-#     html = f"""
-#     <style>
-#     .tooltip-container {{
-#         position: relative;
-#         display: inline-block;
-#     }}
 
-#     .tooltip-container .tooltip-text {{
-#         visibility: hidden;
-#         width: 300px;
-#         background-color: #f0f0f0;
-#         text-align: left;
-#         border-radius: 6px;
-#         color: black;
-#         padding: 8px;
-#         position: absolute;
-#         bottom: -5px;
-#         left: 25px;
-#         z-index: 1;
-#         transform: translateY(100%);
-#         font-size: 12px;
-#     }}
 
-#     .tooltip-container:hover .tooltip-text {{
-#         visibility: visible;
-#     }}
-#     </style>
+def custom_card(label_org,label_functionality):
+    html = f"""
+    <style>
+    .tooltip-container {{
+        position: relative;
+        display: inline-block;
+    }}
 
-#     <div style="border: 1px solid #DDD; border-radius: 10px; width:250px; padding: 12px; background-color: #FAFAFA; text-align: left;">
-#         <div style="font-weight: 600; font-size: 16px;">
-#             {label}
-    
-#         <div style="font-size: 20px; color: green; margin-top: 4px; text-align: center;">{value}
-#         <span class="tooltip-container">
-#                 <span style="cursor: pointer;">{"💡"}</span>
-#                 <span class="tooltip-text">{tooltip_text}</span>
-#             </span>
-#         </div>
-#     </div>
-#     """
+    .tooltip-container .tooltip-text {{
+        visibility: hidden;
+        width: 300px;
+        background-color: #f0f0f0;
+        text-align: center;
+        border-radius: 6px;
+        color: black;
+        padding: 8px;
+        position: absolute;
+        bottom: -5px;
+        left: 25px;
+        z-index: 1;
+        transform: translateY(100%);
+        font-size: 12px;
+    }}
 
+    .tooltip-container:hover .tooltip-text {{
+        visibility: visible;
+    }}
+    </style>
+
+    <div style="border: 1px solid #DDD; border-radius: 10px; width:250px; padding: 12px; background-color: #FAFAFA; text-align: center;">
+        <div style="font-weight: 600; font-size: 16px; margin-bottom: 8px;">
+            {label_functionality}
+            {label_org}
+        
+        </div>
+    """
+
+    st.markdown(html, unsafe_allow_html=True)
     
 def custom_metric(label, value, tooltip_text):
     html = f"""
@@ -237,13 +235,13 @@ col1, col2 = st.columns([1,3])
 
 
 with col1:
-    custom_metric(
-            f"Chosen functionality: {st.session_state['ai_function']}",
-            f" ",
-            f" "
+    custom_card(
+            f"Chosen functionality: {st.session_state['ai_function']}\n",
+            f"Chosen people: {st.session_state['org_people']}"
         )
 
-
+    st.markdown("<br>", unsafe_allow_html=True)
+    
     custom_metric(
         f"Estimated energy consumption per query in {st.session_state['location']}",
         f"{avg_gpu_energy:.4g} Wh",
@@ -267,10 +265,10 @@ with col1:
     
     st.markdown("<br>", unsafe_allow_html=True)
 
-    queries = st.slider("How many user interactions with your AI model do you expect per user and day on average?", 1, 100, 1, help="An interaction could be a written prompt, uploading an image, document or sound file, or generating a new result.")
-    # total_emission = queries*estimated_emissions
-    f"Your chosen AI functionality usage is expected to generate {queries*estimated_emissions:.4g} g CO₂ per day and user"
-    st.markdown("<br>", unsafe_allow_html=True)
+    # queries = st.slider("How many user interactions with your AI model do you expect per user and day on average?", 1, 100, 1, help="An interaction could be a written prompt, uploading an image, document or sound file, or generating a new result.")
+    # # total_emission = queries*estimated_emissions
+    # f"Your chosen AI functionality usage is expected to generate {queries*estimated_emissions:.4g} g CO₂ per day and user"
+    # st.markdown("<br>", unsafe_allow_html=True)
     
     with st.expander("Which AI models are included for calculation in these average values?"):
         st.write("These values are averages over all models from the AI Energy Score Leaderboard: ")
@@ -300,7 +298,7 @@ with col2:
         # Short summary shown by default
         st.write(
             f"Running your model in **{st.session_state['location']}** yields around "
-            f"**{estimated_emissions:.4g} g CO₂eq per query** (Nowtricity, {data_retrieval_time_utc}). Compare this with historical global, US and European averages for the period 2024–2025."
+            f"**{estimated_emissions:.4g} g CO₂eq per query**, assuming the AI Energy Score Leaderboard average model and current carbon intensity factor (Nowtricity, {data_retrieval_time_utc}). The graph below compares this current value with historical global, US and European carbon intensity averages for the period June 2024– June 2025."
         )
  
         #st.markdown(f"Running your model on a cloud server or datacenter in {st.session_state['location']} would yield around {estimated_emissions:.4g} g CO₂eq per query according to Nowtricity data retrieved on {data_retrieval_time_utc}.")
@@ -374,52 +372,18 @@ with col2:
 
         st.altair_chart(chart, use_container_width=True)
         
-        carbon_factor_data_pjm = get_carbon_factor_pjm()
-        carbon_intensity_pjm = carbon_factor_data_pjm["carbon_intensity"]
-        data_retrieval_time_utc_pjm = carbon_factor_data_pjm["date_utc"]   
-        dt_pjm = datetime.strptime(data_retrieval_time_utc_pjm, "%Y-%m-%dT%H:%M:%S.%f%z")
-        data_retrieval_time_utc_pjm = dt_pjm.strftime("%B %d, %Y at %I:%M %p UTC")
-        estimated_emissions_pjm = calculate_average_emissions_per_energy(carbon_intensity_pjm, avg_gpu_energy) 
         
-        st.markdown("A common data center location for cloud providers like Azure and Amazon Web Services, is the East US region, where the PJM grid region is one of the largest power grid operators.")
-        st.markdown(f"Running the model on a data center in East US might produce around {estimated_emissions_pjm:.4g} g CO₂eq, according to data from the Electricity Maps API retrieved {data_retrieval_time_utc_pjm}.")
+        #LeaderBoard
+        st.markdown(body='<h3 style="text-align: left"> Comparing Energy Efficiency </h3>', unsafe_allow_html=True)
         
-        percent_diff = ((estimated_emissions_pjm - estimated_emissions) / estimated_emissions_pjm) * 100
-        st.markdown(f"""
-        Running your AI service in **{st.session_state['location']}** is currently approximately **{percent_diff:.2g}% cleaner** per query than the current US East grid. 
-        """)
-        
-        with st.expander("Further details"):
-            st.write("Comparing the corresponding estimated emissions of the model with a European context to that with a global average carbon intensity factor or a US factor between 2024-2025. Please note that this is historical data. The energy mix and the emissions levels might change in the future.")
-
-            st.write("""
-            Data
-            - **Energy per query**: From the AI Energy Score Leaderboard.
-            - **Local carbon intensity**: Retrieved from Nowtricity for your selected region.
-            - **US and Global averages**: Monthly carbon intensity data from Ember Climate Reports.
-            - **Carbon intensity for the PJM grid region**: Retrieved from Electricity Map for the PJM region.
-            
-            Note that these different data sources might have slightly different methodologies.
-            """)
-        
-
-st.markdown("<br><br>", unsafe_allow_html=True)
-
-tab1, tab2, tab3 = st.tabs(["Environmental impact", "AI Lifecycle", "About This Service"])
-
-with tab1:
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        st.markdown(body='<h3 style="text-align: center"> Energy Score Leaderboard </h3>', unsafe_allow_html=True)
-        
-        with st.container(border=True):
-            st.markdown(f"According to AI Energy Score, the most energy efficient model for {ai_functionality_choice.lower()} is {best_model_obj['model']}. \n \
-                Compared to the average GPU energy on the AI Energy Score Leaderboard, this model is around {compare_with_average(best_model_obj, avg_gpu_energy)}x more energy efficient \
-                    <a href='https://huggingface.co/spaces/AIEnergyScore/Leaderboard'>[See the leaderboard here]</a>", unsafe_allow_html=True)
+        # with st.container(border=True):
+        st.markdown(f"According to AI Energy Score, the most energy efficient model for {ai_functionality_choice.lower()} is {best_model_obj['model']}. \n \
+            Compared to the average GPU energy on the AI Energy Score Leaderboard, this model is around {compare_with_average(best_model_obj, avg_gpu_energy)}x more energy efficient \
+                <a href='https://huggingface.co/spaces/AIEnergyScore/Leaderboard'>[See the leaderboard here]</a>", unsafe_allow_html=True)
         
         
-        st.markdown(body='<h3 style="text-align: center"> Best Model VS Leaderboard Average </h3>', unsafe_allow_html=True)
+        st.markdown("<br>", unsafe_allow_html=True)
+        st.markdown(body='<h3 style="text-align: left"> Best Model VS Leaderboard Average </h3>', unsafe_allow_html=True)
         st.markdown("<br><br>", unsafe_allow_html=True)
         
         comparison_data = get_comparison_df(best_model_obj, avg_gpu_energy)
@@ -438,7 +402,50 @@ with tab1:
 
         st.altair_chart(bar_chart, use_container_width=True)
         
+        carbon_factor_data_pjm = get_carbon_factor_pjm()
+        carbon_intensity_pjm = carbon_factor_data_pjm["carbon_intensity"]
+        data_retrieval_time_utc_pjm = carbon_factor_data_pjm["date_utc"]   
+        dt_pjm = datetime.strptime(data_retrieval_time_utc_pjm, "%Y-%m-%dT%H:%M:%S.%f%z")
+        data_retrieval_time_utc_pjm = dt_pjm.strftime("%B %d, %Y at %I:%M %p UTC")
+        estimated_emissions_pjm = calculate_average_emissions_per_energy(carbon_intensity_pjm, avg_gpu_energy) 
         
+        
+        with st.expander("Further details"):
+            st.markdown("A common data center location for cloud providers like Azure and Amazon Web Services, is the East US region, where the PJM grid region is one of the largest power grid operators.")
+            st.markdown(f"Running the model on a data center in East US might produce around {estimated_emissions_pjm:.4g} g CO₂eq, according to data from the Electricity Maps API retrieved {data_retrieval_time_utc_pjm}.")
+            
+            percent_diff = ((estimated_emissions_pjm - estimated_emissions) / estimated_emissions_pjm) * 100
+            st.markdown(f"""
+            Running your AI service in **{st.session_state['location']}** is currently approximately **{percent_diff:.2g}% cleaner** per query than the current US East grid. 
+            """)
+
+            st.write("""
+            Data
+            - **Energy per query**: From the AI Energy Score Leaderboard.
+            - **Local carbon intensity**: Retrieved from Nowtricity for your selected region.
+            - **US and Global averages**: Monthly carbon intensity data from Ember Climate Reports.
+            - **Carbon intensity for the PJM grid region**: Retrieved from Electricity Map for the PJM region.
+            
+            Note that these different data sources might have slightly different methodologies.
+            The energy mix, emissions levels and energy use of AI models is constantly changing, so it is important to keep updated.
+            """)
+            
+    
+st.markdown("<br><br>", unsafe_allow_html=True)
+
+tab1, tab2, tab3 = st.tabs(["Environmental impact", "AI Lifecycle", "About This Service"])
+
+with tab1:
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.markdown("hej", unsafe_allow_html=True, border=True)
+        queries = st.slider("How many user interactions with your AI model does your organization expect per day on average?", 1, 100, 1, help="An interaction could be a written prompt, uploading an image, document or sound file, or generating a new result.")
+        f"Your chosen AI functionality usage is expected to generate {queries*estimated_emissions:.4g} g CO₂ per day and user"
+        st.markdown("<br>", unsafe_allow_html=True)
+    
+    
+    #Impact estimation tab
     with col2:
         st.markdown(body='<h3 style="text-align: center"> Impact estimation </h3>', unsafe_allow_html=True)
         with st.container(border=True):
