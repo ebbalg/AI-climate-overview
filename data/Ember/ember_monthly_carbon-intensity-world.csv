@@ -1,0 +1,13 @@
+entity,entity_code,is_aggregate_entity,date,emissions_intensity_gco2_per_kwh,emissions_intensity_yoy_change_gco2_per_kwh,emissions_intensity_yoy_change_pct
+"World",,true,"2024-06",473.03,-31.43,-6.23
+"World",,true,"2024-07",485.39,-26.41,-5.16
+"World",,true,"2024-08",495.88,-11.9,-2.34
+"World",,true,"2024-09",492.19,-4.41,-0.89
+"World",,true,"2024-10",479.11,-7.62,-1.57
+"World",,true,"2024-11",491.5,-1.45,-0.29
+"World",,true,"2024-12",498.38,-11.81,-2.31
+"World",,true,"2025-01",488.94,-17.42,-3.44
+"World",,true,"2025-02",492.17,-8.71,-1.74
+"World",,true,"2025-03",471.17,-14.13,-2.91
+"World",,true,"2025-04",459.54,-10.28,-2.19
+"World",,true,"2025-05",455.94,-9.06,-1.95

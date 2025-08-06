@@ -1,0 +1,14 @@
+entity,entity_code,is_aggregate_entity,date,emissions_intensity_gco2_per_kwh,emissions_intensity_yoy_change_gco2_per_kwh,emissions_intensity_yoy_change_pct
+"United States","USA",false,"2024-06",388.6,-14.55,-3.61
+"United States","USA",false,"2024-07",422.05,-12.64,-2.91
+"United States","USA",false,"2024-08",417.11,-17.1,-3.94
+"United States","USA",false,"2024-09",402.59,-9.95,-2.41
+"United States","USA",false,"2024-10",375.16,-9.16,-2.38
+"United States","USA",false,"2024-11",367.08,-18.3,-4.75
+"United States","USA",false,"2024-12",390.41,0.4,0.1
+"United States","USA",false,"2025-01",416.73,-7.9,-1.86
+"United States","USA",false,"2025-02",392.24,33.9,9.46
+"United States","USA",false,"2025-03",339.01,2.5,0.74
+"United States","USA",false,"2025-04",336.68,2.88,0.86
+"United States","USA",false,"2025-05",351.72,-5.83,-1.63
+"United States","USA",false,"2025-06",389.13,0.53,0.14

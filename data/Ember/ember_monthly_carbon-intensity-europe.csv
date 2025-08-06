@@ -1,0 +1,14 @@
+entity,entity_code,is_aggregate_entity,date,emissions_intensity_gco2_per_kwh,emissions_intensity_yoy_change_gco2_per_kwh,emissions_intensity_yoy_change_pct
+"Europe",,true,"2024-06",258.65,-18.55,-6.69
+"Europe",,true,"2024-07",275.62,-9.53,-3.34
+"Europe",,true,"2024-08",279.72,-20.99,-6.98
+"Europe",,true,"2024-09",280.99,-22.86,-7.52
+"Europe",,true,"2024-10",296.86,-9.17,-3
+"Europe",,true,"2024-11",327.55,18.91,6.13
+"Europe",,true,"2024-12",317.42,8.98,2.91
+"Europe",,true,"2025-01",318.66,13.96,4.58
+"Europe",,true,"2025-02",331.35,33.78,11.35
+"Europe",,true,"2025-03",302.03,11.53,3.97
+"Europe",,true,"2025-04",274.59,25.32,10.16
+"Europe",,true,"2025-05",248.04,-2.35,-0.94
+"Europe",,true,"2025-06",248.76,-9.89,-3.82
