@@ -124,21 +124,7 @@ def custom_card(label):
     </div>
     """
     st.markdown(html, unsafe_allow_html=True)
-
-    .tooltip-container:hover .tooltip-text {{
-        visibility: visible;
-    }}
-    </style>
-
-    <div style="border: 1px solid #DDD; border-radius: 10px; width:250px; padding: 12px; background-color: #FAFAFA; text-align: center;">
-        <div style="font-weight: 600; font-size: 16px; margin-bottom: 8px;">
-            {label_functionality}
-            {label_org}
-        
-        </div>
-    """
-
-    st.markdown(html, unsafe_allow_html=True)
+    
     
 def custom_metric(label, value, tooltip_text):
     html = f"""
