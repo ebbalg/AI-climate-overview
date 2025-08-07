@@ -147,7 +147,7 @@ with st.form("my_form"):
     # )
 
 
-    ai_options = ["Text generation", "Text classification", "Speech recognition", "Image generation", "Image classification"] 
+    ai_options = ["Text generation", "Text classification", "Speech recognition", "Image generation", "Image classification", "Object detection", "Summarization", "Image captioning"] 
     ai_function = st.radio(
     "Which AI functionalities would you like to use for your project?",   #Which AI functionalities might help tackle this problem?
     ai_options,
@@ -161,7 +161,12 @@ with st.form("my_form"):
         <b>Text classification</b>: Categorizing text into predefined labels, can be e.g. spam detection for emails <br>
         <b>Speech recognition</b>: Converting spoken language into text, for example for transcription <br>
         <b>Image generation</b>: Generating images from a description <br>
-        <b>Image classification</b>: Identify objects or scenes in images by assigning a label, e.g. detecting which animal is in an image""", unsafe_allow_html=True)
+        <b>Image classification</b>: Assigning labels to objects or scenes in an image, e.g. detecting which animal is in an image <br>
+        <b>Object detection</b>: Identifying and locating objects in images and video, e.g. detecting anomalies in medical scans <br>
+        <b>Summarization</b>: Identifying key information and generate concise versions that retain the original meaning in text, documents etc <br>
+        <b>Image captioning</b>: Automatically generating textual descriptions for images
+        """, 
+        unsafe_allow_html=True)
         
 
     submitted = st.form_submit_button("Analyze Climate Impact")
