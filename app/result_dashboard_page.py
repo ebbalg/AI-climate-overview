@@ -7,7 +7,9 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from scripts.energy_calculations import (calculate_average_gpu_energy, find_lowest_energy_model, compare_with_average, get_comparison_df, calculate_average_emissions_per_energy, get_all_models_for_task)
+from scripts.energy_calculations import (calculate_average_gpu_energy, find_lowest_energy_model, compare_with_average,
+                                         get_comparison_df, calculate_average_emissions_per_energy, get_all_models_for_task,
+                                         get_best_model_for_provider, get_avg_energy_for_provider, get_all_unique_providers)
 from scripts.get_carbon_data import get_carbon_factor, get_carbon_factor_pjm, get_codecarbon_estimate
 
 st.set_page_config(layout="wide")
@@ -184,6 +186,15 @@ elif ai_functionality_choice == "Image classification":
     csv_file = "image_classification.csv"
 
 
+elif ai_functionality_choice == "Object detection":
+    csv_file = "object_detection.csv"
+
+elif ai_functionality_choice == "Summarization":
+    csv_file = "summarization.csv"
+
+elif ai_functionality_choice == "Image captioning":
+    csv_file = "image_captioning.csv"
+
 avg_gpu_energy = calculate_average_gpu_energy(csv_file)
 best_model_obj = find_lowest_energy_model(csv_file)
 
@@ -238,11 +249,12 @@ with col1:
     # st.markdown("<br>", unsafe_allow_html=True)
     
     with st.expander("**Which AI models are included for calculation in these average values?**", width=250):
-        st.write("These values are averages over all models from the AI Energy Score Leaderboard: ")
         models = get_all_models_for_task(csv_file)
         for model in models:
             st.markdown(f"- {model}")
         # st.write(", ".join(models))
+
+        st.markdown("<br><i>*Please note that the list of data was last updated in February 2025.</i>", unsafe_allow_html=True)
 
 with col2:
     with st.container(border=True):
@@ -342,7 +354,7 @@ with col2:
         st.altair_chart(chart, use_container_width=True)
         
         
-        #LeaderBoard
+        # LeaderBoard
         st.markdown(body='<h3 style="text-align: left"> Comparing Energy Efficiency of Models </h3>', unsafe_allow_html=True)
         
         # with st.container(border=True):
@@ -356,20 +368,64 @@ with col2:
         st.markdown("<br><br>", unsafe_allow_html=True)
         
         comparison_data = get_comparison_df(best_model_obj, avg_gpu_energy)
-        
+
+        # Show chart before user input
         bar_chart = (
             alt.Chart(comparison_data)
             .mark_bar()
             .encode(
-                x=alt.X("Energy (Wh):Q", title="Total Energy (Wh)"),     # Q for quantitative
-                y=alt.Y("Model:N", sort="-x", title=""),                 # N for nominal
+                x=alt.X("Energy (Wh):Q", title="Total Energy (Wh)"),
+                y=alt.Y("Model:N", sort="-x", title=""),
                 color=alt.Color("Model:N", legend=None),
                 tooltip=["Model", "Energy (Wh)"]
             )
             .properties(height=200, width=300)
         )
 
-        st.altair_chart(bar_chart, use_container_width=True)
+        chart_placeholder = st.empty()  # This will hold the chart
+        chart_placeholder.altair_chart(bar_chart, use_container_width=True)
+
+        # Now show selectbox *after* the chart
+        provider_list = get_all_unique_providers(csv_file)
+        selected_provider = st.selectbox("Add provider to compare (optional):", ["None"] + provider_list, width=250)
+
+        # If provider selected, update the chart
+        if selected_provider != "None":
+            provider_best_model = get_best_model_for_provider(csv_file, selected_provider)
+            provider_avg_energy = get_avg_energy_for_provider(csv_file, selected_provider)
+
+            if provider_best_model is not None and provider_avg_energy is not None:
+                extended_rows = [
+                        {
+                            "Model": f'{provider_best_model["model"]} (best {selected_provider} model)',
+                            "Energy (Wh)": provider_best_model["total_gpu_energy"],
+                        },  
+                        {
+                            "Model": f"{selected_provider} (Average)",
+                            "Energy (Wh)": provider_avg_energy
+                        }
+                    ]
+                    
+                    
+                updated_data = pd.concat([
+                    comparison_data,
+                    pd.DataFrame(extended_rows)
+                ], ignore_index=True)
+
+                # Redraw the chart with new data (overwrite old chart)
+                updated_chart = (
+                    alt.Chart(updated_data)
+                    .mark_bar()
+                    .encode(
+                        x=alt.X("Energy (Wh):Q", title="Total Energy (Wh)"),
+                        y=alt.Y("Model:N", sort="-x", title=""),
+                        color=alt.Color("Model:N", legend=None),
+                        tooltip=["Model", "Energy (Wh)"]
+                    )
+                    .properties(height=200, width=300)
+                )
+
+                chart_placeholder.altair_chart(updated_chart, use_container_width=True)
         
         carbon_factor_data_pjm = get_carbon_factor_pjm()
         carbon_intensity_pjm = carbon_factor_data_pjm["carbon_intensity"]
@@ -519,10 +575,4 @@ with tab3:
     url_kajsa = "https://www.linkedin.com/in/kajsa-lidin-6288ba205/"
     url_isabella = "https://se.linkedin.com/in/isabellafu001"
     st.markdown(f"""Do you have any questions or feedback? Reach out to us at 
-                [Kajsa Lidin]({url_kajsa}), [Ebba Leppänen Gröndal]({url_ebba}), [Isabella Fu]({url_isabella}).""")
-
-
-
-    
-    
-
+                [Kajsa Lidin]({url_kajsa}), [Ebba Leppänen Gröndal]({url_ebba}), or [Isabella Fu]({url_isabella}).""")
