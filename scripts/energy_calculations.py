@@ -146,13 +146,37 @@ def compare_with_average(model_obj, avg_gpu_energy):
     return round(avg_gpu_energy / model_gpu_energy)
 
 
-def get_comparison_df(model_obj, avg_gpu_energy):
-    comparison_data = pd.DataFrame({
-                 "Model": [model_obj["model"], "Average"],
-                 "Energy (Wh)": [model_obj["gpu_energy_Wh_per_query"], avg_gpu_energy],
-         })
-    
-    return comparison_data
+def get_comparison_df(model_obj, avg_gpu_energy, ai_functionality_choice):
+    if ai_functionality_choice == "Text generation":
+        data = [
+            {
+                "Model": model_obj["model"],
+                "Energy (Wh)": model_obj["gpu_energy_Wh_per_query"],
+                "Class": model_obj.get("class", ""),
+            },
+            {
+                "Model": "Average",
+                "Energy (Wh)": avg_gpu_energy,
+                "Class": "",
+            },
+        ]
+        df = pd.DataFrame(data)
+        df["custom_tooltip"] = df["Class"].apply(lambda x: f"Class: {x}" if x else "")
+    else:
+        data = [
+            {
+                "Model": model_obj["model"],
+                "Energy (Wh)": model_obj["gpu_energy_Wh_per_query"],
+            },
+            {
+                "Model": "Average",
+                "Energy (Wh)": avg_gpu_energy,
+            },
+        ]
+        df = pd.DataFrame(data)
+
+    return df
+
     
 
 def calculate_average_emissions_per_energy(carbon_intensity, avg_energy_Wh):
