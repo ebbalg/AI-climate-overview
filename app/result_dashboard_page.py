@@ -14,14 +14,74 @@ from scripts.get_carbon_data import get_carbon_factor, get_carbon_factor_pjm, ge
 
 st.set_page_config(layout="wide")
 
-st.markdown("""
+@alt.theme.register('transparent_theme', enable=False)
+def transparent_theme():
+    return {
+        "config": {
+            "background": None,  # Makes background transparent
+            "view": {"stroke": "transparent"},  # Removes border
+            "axis": {
+                "domain": False,
+                "grid": True,
+                "tickColor": "#ccc",
+                "labelColor": "#333",
+                "titleColor": "#333"
+            },
+            "legend": {
+                "labelColor": "#333",
+                "titleColor": "#333"
+            },
+            "title": {
+                "color": "#333"
+            }
+        }
+    }
+
+alt.themes.enable('transparent_theme')
+
+def set_background_gradient():
+    st.markdown("""
+        <style>
+        .stApp {
+            background: linear-gradient(to bottom right, #F7FFF7, #C1E1C1);
+        }
+        </style>
+    """, unsafe_allow_html=True)
+
+set_background_gradient() # border:1px solid #121212;
+
+# alt.themes.enable('none')  # Use built-in none theme to remove default styles
+
+# # Set global transparent background
+# alt.theme.register('transparent_background', lambda: {
+#     'config': {
+#         'background': 'none',
+#         'view': {'stroke': 'transparent'},  # Remove outer border
+#         'axis': {'domain': False, 'grid': True}
+#     }
+# })
+# alt.themes.enable('transparent_background')
+
+
+st.markdown("""   
     <style>
         body {
             background-color: #F7FFF7;
         }
+        
         .block-container {
             padding-top: 2rem;
         }
+
+        .custom-container {
+        background-color: #ffffff;
+        border-radius:12px;
+        padding:16px 18px;
+        display: inline-block;
+        width: 100%;
+        box-shadow:0 2px 10px rgba(0,0,0,0.06);
+        }
+        
         .info-card {
             background-color: white;
             border-radius: 0.75rem;
@@ -74,6 +134,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
+
 # container for AI lifecycle
 st.markdown("""
     <style>
@@ -101,9 +162,9 @@ if "ai_function" not in st.session_state:
     st.stop()
     
 
-st.markdown(body='<h1 style="text-align: center"> Climate Impact Overview </h1>', unsafe_allow_html=True)
+st.markdown(body='<h1 style="text-align: center"> AI Use Case Explorer </h1>', unsafe_allow_html=True)
 space = st.empty()
-space.markdown("<br>", unsafe_allow_html=True)
+space.markdown("<br><br>", unsafe_allow_html=True)
 
 #with st.container(border=True):
     #challenge = st.text_input("Your challenge", f"{st.session_state['challenge']}")
@@ -223,20 +284,20 @@ with col1:
     custom_metric(
         f"Estimated energy consumption per query and user in {st.session_state['location']}",
         f"{round(avg_gpu_energy, 4)} Wh",
-        "This number is an average of the GPU Energy field of all models from the AI energy score leaderboard, formulated as watt-hours per query and rounded to four decimal places. This energy is just for using the model and does not account for manufacture or training. A LED light consumes 5-12 Wh."
+        "This number is an average of the GPU Energy field of all models from the AI energy score leaderboard, formulated as watt-hours per query and rounded to four decimal places. This energy is just for using the model and does not account for manufacture or training."
     )
     
     st.markdown("<br>", unsafe_allow_html=True)
     
     # For faked API data:
     # custom_metric(
-    #     "Estimated CO₂ Emissions per query",
+    #     "Estimated CO₂ emissions per query",
     #     f"{estimated_emissions:.4g} g CO2eq",
     #     "This number is estimated based on the latest carbon intensity factor in Sweden, times the average GPU energy, rounded to four significant digits. The carbon intensity factor value is from retrieved from Nowtricity, data from UTC date 2025-07-09. Note that this is a simplification and that an AI model's energy use can depend on where its data center is located. "
     # )
     
     custom_metric(
-        f"Estimated CO₂ Emissions per query and user in {st.session_state['location']}",
+        f"Estimated CO₂ emissions per query and user in {st.session_state['location']}",
         f"{round(estimated_emissions, 4)} g CO₂eq",
         f"This number is estimated based on the latest carbon intensity factor in {st.session_state["location"]}, times the average GPU energy, rounded to four decimal places. The carbon intensity factor value is from retrieved from Nowtricity, data from {data_retrieval_time_utc}. Note that this is a simplification and that an AI model's energy use can depend on where its data center is located. "
     )
@@ -258,7 +319,10 @@ with col1:
 
 with col2:
     with st.container(border=True):
-        st.markdown("## Scenario Dashboard ##")
+        #st.markdown('<div class="custom-container">', unsafe_allow_html=True)
+        #st.markdown('<div id="scenario-anchor"></div>', unsafe_allow_html=True)
+
+        #st.markdown("## Scenario Dashboard ##")
         global_intensity_data = "data/Ember/ember_monthly_carbon-intensity-world.csv"
         us_intensity_data = "data/Ember/ember_monthly_carbon-intensity-us.csv"
         europe_intensity_data = "data/Ember/ember_monthly_carbon-intensity-europe.csv"
@@ -276,12 +340,14 @@ with col2:
         europe_df['emissions_per_query'] = europe_df['emissions_intensity_gco2_per_kwh'].apply(
         lambda x: calculate_average_emissions_per_energy(x, avg_gpu_energy))
         
+        
         # Short summary shown by default
-        st.write(
+        st.markdown("The energy use of different models and tasks is retrieved from the AI Energy Score Leaderboard <a href='https://huggingface.co/spaces/AIEnergyScore/Leaderboard'>[See the leaderboard here]</a>.", unsafe_allow_html=True)
+        st.markdown(
             f"Running your model in **{st.session_state['location']}** yields around "
-            f"**{estimated_emissions:.4g} g CO₂eq per query**, assuming the AI Energy Score Leaderboard average model and current carbon intensity factor (Nowtricity, {data_retrieval_time_utc}). The graph below compares this current value with historical global, US and European carbon intensity averages for the period June 2024– June 2025."
+            f"**{estimated_emissions:.4g} g CO₂eq per query**, assuming the AI Energy Score Leaderboard average model and current carbon intensity factor (Nowtricity, {data_retrieval_time_utc}). The graph below compares this current value with historical global, US and European carbon intensity averages for the period June 2024– June 2025. <br><br>", unsafe_allow_html=True
         )
- 
+
         #st.markdown(f"Running your model on a cloud server or datacenter in {st.session_state['location']} would yield around {estimated_emissions:.4g} g CO₂eq per query according to Nowtricity data retrieved on {data_retrieval_time_utc}.")
         #st.markdown("Comparing the corresponding estimated emissions of the model with a European context to that with a global average carbon intensity factor or a US factor between 2024-2025. Please note that this is historical data. The energy mix and the emissions levels might change in the future.")
 
@@ -348,24 +414,26 @@ with col2:
         chart = alt.layer(
             line, selectors, points, rules, text, highlight_line, text_label
         ).properties(
-            title='Estimated Emissions per AI Query Over Time (Europe vs Global vs US carbon intensity)'
+            title='Estimated emissions per AI query over time'
         ).interactive()
 
         st.altair_chart(chart, use_container_width=True)
+        st.markdown("<br>", unsafe_allow_html=True)
         
         
         # LeaderBoard
-        st.markdown(body='<h3 style="text-align: left"> Comparing Energy Efficiency of Models </h3>', unsafe_allow_html=True)
+        #st.markdown(body='<h3 style="text-align: left"> Comparing Energy Efficiency of Models </h3>', unsafe_allow_html=True)
         
         # with st.container(border=True):
         st.markdown(f"According to AI Energy Score, the most energy efficient model for **{ai_functionality_choice.lower()}** is **{best_model_obj['model']}**. \n \
-            Compared to the average GPU energy on the AI Energy Score Leaderboard, this model is around **{compare_with_average(best_model_obj, avg_gpu_energy)}x** more energy efficient \
-                <a href='https://huggingface.co/spaces/AIEnergyScore/Leaderboard'>[See the leaderboard here]</a>", unsafe_allow_html=True)
+            Compared to the average GPU energy on the AI Energy Score Leaderboard, this model is around **{compare_with_average(best_model_obj, avg_gpu_energy)}x** more energy efficient.", unsafe_allow_html=True)
+                
+                # <a href='https://huggingface.co/spaces/AIEnergyScore/Leaderboard'>[See the leaderboard here]</a>", unsafe_allow_html=True)
         
         
         # st.markdown("<br>", unsafe_allow_html=True)
         # st.markdown(body='<h3 style="text-align: left"> Best Model vs Leaderboard Average </h3>', unsafe_allow_html=True)
-        st.markdown("<br><br>", unsafe_allow_html=True)
+        # st.markdown("<br>", unsafe_allow_html=True)
         
         comparison_data = get_comparison_df(best_model_obj, avg_gpu_energy, ai_functionality_choice)
         
@@ -393,7 +461,7 @@ with col2:
                 # tooltip=["Model", "Energy (Wh)", "Class"]
                 tooltip=tooltip_fields
             )
-            .properties(height=200, width=300)
+            .properties(height=200, width=300, title='Comparison of energy usage between specific and average models')
         )
 
         chart_placeholder = st.empty()  # This will hold the chart
@@ -489,21 +557,23 @@ with col2:
             The energy mix, emissions levels and energy use of AI models is constantly changing, so it is important to keep updated.
             """)
             
+        st.markdown('</div>', unsafe_allow_html=True)
+            
     
 st.markdown("<br><br>", unsafe_allow_html=True)
 
-tab1, tab2, tab3 = st.tabs(["Environmental impact", "AI Lifecycle", "About This Service"])
+tab1, tab2, tab3 = st.tabs(["Environmental impact", "AI Lifecycle", "Footprint of this page"])
 
 with tab1:
     col1, col2 = st.columns(2)
     
     with col1:
-        st.markdown(body='<h3 style="text-align: center"> Organizational Impact </h3>', unsafe_allow_html=True)
+        st.markdown(body='<h3 style="text-align: center"> Organisational Impact </h3>', unsafe_allow_html=True)
         with st.container(border=True):
             st.markdown("""A query could be considered a user interaction with the part of the service that implements AI. This interaction could be a written prompt, uploading an image, document or sound file, or generating a new result. <br> <br>""", unsafe_allow_html=True)
             
             impact_per_year = st.empty()
-            num_queries = st.slider("How many interactions per user with your AI model does your organization expect per day on average?", 1, 100, 10, help="An interaction could be a written prompt, uploading an image, document or sound file, or generating a new result.")
+            num_queries = st.slider("How many interactions with your AI model does your organisation expect per day and user on average?", 1, 100, 10, help="An interaction could be a written prompt, uploading an image, document or sound file, or generating a new result.")
             impact_per_year.markdown(f"With around **{num_queries}** queries a day per user and **{st.session_state['org_people']}** users, your selected AI functionality might generate approximately **{estimated_emissions*num_queries*st.session_state['org_people']*365:.4g}** g CO₂eq per year. <br> <br>", unsafe_allow_html=True)
             st.markdown("<br>", unsafe_allow_html=True)
     
@@ -522,7 +592,7 @@ with tab1:
                         Since this data is often complex to get access to, this service considers the country average carbon factor for your selected country. """)
 
 with tab2:
-    st.markdown(body= '<h3 style= "text-align: center"> The Lifecycle of GenAI models </h3>', unsafe_allow_html = True)
+    st.markdown(body= '<h3 style= "text-align: center"> The lifecycle of GenAI models </h3>', unsafe_allow_html = True)
     
     col1, col2, col3, col4 = st.columns(4)
 
@@ -559,17 +629,19 @@ with tab2:
             
             
 with tab3:
-    st.subheader("About This Service")
-    # with st.container(border=True):
-    st.markdown("""The Climate Impact Overview aims to provide a simplified interface and playground for anyone that wants to reflect on the negative climate impact of using an AI model for solving an organizational issue.
-                Here you can compare the impact of different models, locations for inference (data centers and cloud provider services) and get actionable ideas for how to use AI in the most energy and carbon efficient way possible. 
-                On this dashboard, we focus only on AI inference, i.e. the usage of an AI functionality. Other parts of the AI lifecycle are overlooked as they are harder for a individual or an organization to control, and can be harder to understand and trust.
-                """)
+    # st.subheader("About this service")
+    # # with st.container(border=True):
+    # st.markdown("""The AI Footprint aims to provide a simplified interface and playground for anyone that wants learn about the environmental impact of using an AI model for 
+    #             Here you can compare the impact of different models, locations for inference (data centers and cloud provider services) and get actionable ideas for how to use AI in the most energy and carbon efficient way possible. 
+    #             On this dashboard, we focus only on AI inference, i.e. the usage of an AI functionality. Other parts of the AI lifecycle are overlooked as they are harder for a individual or an organization to control, and can be harder to understand and trust.
+    #             """)
 
-    st.markdown("""This project was developed as a part of AI Sweden's Public Innovation Summer Program 2025, a national initiative supporting innovation in the public sector and civil society through applied AI.""")
-    st.markdown("<br>", unsafe_allow_html=True)
+    # st.markdown("""This project was developed as a part of AI Sweden's Public Innovation Summer Program 2025, a national initiative supporting innovation in the public sector and civil society through applied AI.""")
+    # st.markdown("<br>", unsafe_allow_html=True)
     
-    st.subheader("CodeCarbon Tracking of This Service")
+    #st.subheader("CodeCarbon Tracking of AI Use Case Explorer")
+    st.markdown(body='<h3 style="text-align: left"> CodeCarbon Tracking of AI Use Case Explorer  </h3>', unsafe_allow_html=True)
+
     
     codecarbon_data = get_codecarbon_estimate("codecarbon_logs/emissions_6_aug_result_dashboard.csv")    # "filename"
     
@@ -602,11 +674,11 @@ with tab3:
     # else:
     #     st.info("Tracking will appear here once measurements are logged.")
     
-    st.subheader("For any inquiries or feedback, please contact us at: ")
-    # st.markdown("check out this [link](%s)" % url)
+    # st.subheader("Contact")
+    # # st.markdown("check out this [link](%s)" % url)
     
-    url_ebba = "https://se.linkedin.com/in/ebba-lepp%C3%A4nen-gr%C3%B6ndal-910529170"
-    url_kajsa = "https://www.linkedin.com/in/kajsa-lidin-6288ba205/"
-    url_isabella = "https://se.linkedin.com/in/isabellafu001"
-    st.markdown(f"""Do you have any questions or feedback? Reach out to us at 
-                [Kajsa Lidin]({url_kajsa}), [Ebba Leppänen Gröndal]({url_ebba}), or [Isabella Fu]({url_isabella}).""")
+    # url_ebba = "https://se.linkedin.com/in/ebba-lepp%C3%A4nen-gr%C3%B6ndal-910529170"
+    # url_kajsa = "https://www.linkedin.com/in/kajsa-lidin-6288ba205/"
+    # url_isabella = "https://se.linkedin.com/in/isabellafu001"
+    # st.markdown(f"""Do you have any questions or feedback? Reach out to us at 
+    #             [Kajsa Lidin]({url_kajsa}), [Ebba Leppänen Gröndal]({url_ebba}), or [Isabella Fu]({url_isabella}).""")

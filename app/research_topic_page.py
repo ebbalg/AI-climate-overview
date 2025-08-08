@@ -108,11 +108,10 @@ with top_col1:
         st.switch_page("start_page.py")
 
 # Header + subheading
-st.markdown('<h1 style="text-align: center;">Understanding AI’s Environmental Impact</h1>', unsafe_allow_html=True)
-st.markdown('<h4 style="text-align: center;font-weight: normal;">Click to search and learn about the environmental aspects of AI usage that your organization can directly impact, focusing on energy and greenhouse gas emissions.</h4>', unsafe_allow_html=True)
+#st.markdown('<h1 style="text-align: center;">Understanding AI’s Environmental Impact</h1>', unsafe_allow_html=True)
+st.markdown('<h1 style="text-align: center;">Research Overview</h1>', unsafe_allow_html=True)
+st.markdown('<h4 style="text-align: center;font-weight: normal;">Click to search and learn about the environmental aspects of AI usage that your organization can directly impact, focusing on energy and greenhouse gas emissions</h4>', unsafe_allow_html=True)
 st.markdown("<br>", unsafe_allow_html=True)
-
-
 
 with st.spinner("Generating Research Topics..."):
     questions = get_questions(prompt, api_key)
@@ -183,15 +182,13 @@ if st.session_state.get("navigate_to_result"):
 input_box_col, _, _ = st.columns(3)
 
 with input_box_col:
-    st.markdown('<p style="text-align: left; font-weight: bold; margin-bottom: -0.313rem; font-size: 1rem;">I have my own research question</p>', unsafe_allow_html=True)
-    GHG_research_query = st.text_input(label="", placeholder="Enter your own research question here")
+    st.markdown('<p style="text-align: left; font-weight: bold; margin-bottom: -0.313rem; font-size: 1rem;">I have my own research topic</p>', unsafe_allow_html=True)
+    GHG_research_query = st.text_input(label="", placeholder="Enter your own research topic here")
 
 if GHG_research_query:
     st.session_state["GHG_user_question"] = GHG_research_query
-    st.session_state.pop("GHG_selected_question", None)  # clear previous selected question
+    st.session_state.pop("GHG_selected_question", None)  # clear previous selected topic
     st.switch_page("research_result_page.py")
-
-
 
 
 # Section: Other considerations
