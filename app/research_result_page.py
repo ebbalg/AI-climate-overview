@@ -195,19 +195,19 @@ with top_col1:
         st.switch_page("research_topic_page.py")
 
 
-st.markdown('<h1 style="text-align: center;"> AI Environmental Impact Research </h1>', unsafe_allow_html=True)
+st.markdown('<h1 style="text-align: center;"> Research Overview </h1>', unsafe_allow_html=True)
 
 research_topic_col, codecarbon_col = st.columns([3, 1])
 
 with research_topic_col:
-    st.markdown("**Research Topic**")
+    st.markdown("**Research topic**")
 
     if "GHG_user_question" in st.session_state:
         st.markdown("> **" + st.session_state["GHG_user_question"] + "**")
     elif "GHG_selected_question" in st.session_state:
         st.markdown("> **" + st.session_state["GHG_selected_question"] + "**")
         
-    st.markdown("**Research Domains**")
+    st.markdown("**Research domains**")
     included_domains = ["ieeexplore.ieee.org", "springeropen.com", "scienceopen.com", "nature.com", "sciencedirect.com"]    # Peer-reviewed domains for Tavily search. "arxiv.org" not peer-reviewed.
     st.markdown("\n".join(f"- {domain}" for domain in included_domains))
 
@@ -495,7 +495,7 @@ with st.sidebar:
     
     st.markdown('<div class="clear-btn-container">', unsafe_allow_html=True)
     clear_clicked = st.button(
-        "Clear Research Notebook",
+        "Clear research notebook",
         disabled=clear_disabled,
         key="clear_notebook"
      )
@@ -516,7 +516,7 @@ with st.sidebar:
     st.markdown('<h2 style="text-align: left;"> Research Notebook </h2>', unsafe_allow_html=True)
 
     # Make it possible to search for key terms in summary, title or url
-    search_term = st.text_input("Search Notebook")  
+    search_term = st.text_input("Search notebook")  
     if search_term:
         c.execute('''
             SELECT question, summary, title, url, timestamp 
@@ -616,7 +616,7 @@ with st.sidebar:
     word_file = create_word_doc(export)
 
     st.download_button(
-        "⬇ Download Notebook File",
+        "⬇ Download notebook file",
         word_file,
         file_name="notebook.docx",
         mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
