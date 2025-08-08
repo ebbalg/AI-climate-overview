@@ -367,7 +367,20 @@ with col2:
         # st.markdown(body='<h3 style="text-align: left"> Best Model vs Leaderboard Average </h3>', unsafe_allow_html=True)
         st.markdown("<br><br>", unsafe_allow_html=True)
         
-        comparison_data = get_comparison_df(best_model_obj, avg_gpu_energy)
+        comparison_data = get_comparison_df(best_model_obj, avg_gpu_energy, ai_functionality_choice)
+        
+        if ai_functionality_choice == "Text generation":
+            tooltip_fields = [
+                alt.Tooltip("Model:N"),
+                alt.Tooltip("Energy (Wh):Q"),
+                alt.Tooltip("Class:N", title="")
+            ]
+        else:
+            tooltip_fields = [
+                alt.Tooltip("Model:N"),
+                alt.Tooltip("Energy (Wh):Q")
+            ]
+
 
         # Show chart before user input
         bar_chart = (
@@ -377,13 +390,17 @@ with col2:
                 x=alt.X("Energy (Wh):Q", title="Total Energy (Wh)"),
                 y=alt.Y("Model:N", sort="-x", title=""),
                 color=alt.Color("Model:N", legend=None),
-                tooltip=["Model", "Energy (Wh)"]
+                # tooltip=["Model", "Energy (Wh)", "Class"]
+                tooltip=tooltip_fields
             )
             .properties(height=200, width=300)
         )
 
         chart_placeholder = st.empty()  # This will hold the chart
         chart_placeholder.altair_chart(bar_chart, use_container_width=True)
+        if ai_functionality_choice == "Text generation":
+            st.markdown(""":gray[Model classes]: <br> :gray[**A**: Single Consumer GPU <20B parameters], :gray[**B**: Single Cloud GPU 20-66B parameters], :gray[**C**: Multiple Cloud GPUs >66B parameters]""", unsafe_allow_html=True)
+            st.markdown("<br>", unsafe_allow_html=True)
 
         # Now show selectbox *after* the chart
         provider_list = get_all_unique_providers(csv_file)
@@ -395,21 +412,38 @@ with col2:
             provider_avg_energy = get_avg_energy_for_provider(csv_file, selected_provider)
 
             if provider_best_model is not None and provider_avg_energy is not None:
-                extended_rows = [
+                if ai_functionality_choice == "Text generation":
+                    extended_rows = [
                         {
                             "Model": f'{provider_best_model["model"]} (best {selected_provider} model)',
                             "Energy (Wh)": provider_best_model["total_gpu_energy"],
-                        },  
+                            "Class": provider_best_model.get("class", ""),
+                        },
                         {
                             "Model": f"{selected_provider} (Average)",
-                            "Energy (Wh)": provider_avg_energy
+                            "Energy (Wh)": provider_avg_energy,
+                            "Class": "",
                         }
                     ]
+                    extended_df = pd.DataFrame(extended_rows)
+                    extended_df["Class"] = extended_df["Class"].apply(lambda x: f"{x}" if x else "")  # Class:
+                else:
+                    extended_rows = [
+                        {
+                            "Model": f'{provider_best_model["model"]} (best {selected_provider} model)',
+                            "Energy (Wh)": provider_best_model["total_gpu_energy"],
+                        },
+                        {
+                            "Model": f"{selected_provider} (Average)",
+                            "Energy (Wh)": provider_avg_energy,
+                        }
+                    ]
+                    extended_df = pd.DataFrame(extended_rows)
                     
                     
                 updated_data = pd.concat([
                     comparison_data,
-                    pd.DataFrame(extended_rows)
+                    extended_df
                 ], ignore_index=True)
 
                 # Redraw the chart with new data (overwrite old chart)
@@ -420,7 +454,7 @@ with col2:
                         x=alt.X("Energy (Wh):Q", title="Total Energy (Wh)"),
                         y=alt.Y("Model:N", sort="-x", title=""),
                         color=alt.Color("Model:N", legend=None),
-                        tooltip=["Model", "Energy (Wh)"]
+                        tooltip=tooltip_fields
                     )
                     .properties(height=200, width=300)
                 )
