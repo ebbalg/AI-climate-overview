@@ -7,7 +7,9 @@ from codecarbon import EmissionsTracker
 
 # tracker.start()
 
-energy_score_dir = "../AI-climate-overview/data/AI-energy-leaderboard/"
+# energy_score_dir = "../AI-climate-overview/data/AI-energy-leaderboard/"
+base_dir = os.path.dirname(__file__)
+energy_score_dir = os.path.join(base_dir, "data", "AI-energy-leaderboard")
 
 def load_energy_data(task_file):
     """Load all models from file and make sure total GPU energy is Wh per query.
