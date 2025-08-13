@@ -57,8 +57,16 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# spacer1, col1, gap, col2 , spacer2 = st.columns([0.17, 1, 0.1, 1, 0.17]) 
-spacer, col1, gap, col2, spacer = st.columns([1, 1, 0.01, 1, 1]) 
+# First setting
+# spacer, col1, gap, col2, spacer = st.columns([1, 1, 0.01, 1, 1])     
+
+# spacer, col1, col2, spacer = st.columns([1.5, 1, 1, 1.5])     # TEST for bigger screens, works (lite högerställd)
+# spacer, col1, gap, col2, spacer = st.columns([1.6, 1, 0.01, 1, 1.5]) 
+
+# spacer, col1, gap, col2, spacer = st.columns([1.7, 1, 0.5, 1, 1.8]) 
+
+# Tradeoff for smaller/bigger screens
+spacer, col1, gap, col2, spacer = st.columns([1.7, 1, 0.5, 1, 1.95]) 
 with col1: 
     project_query_option = st.button("**AI Use Case Explorer**")
 with col2:
