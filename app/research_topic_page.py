@@ -1,4 +1,3 @@
-import re
 import streamlit as st
 import streamlit.components.v1 as components
 from dotenv import load_dotenv
@@ -26,11 +25,7 @@ def get_questions(prompt_text, api_key):
         temperature=0.7
     )
     raw = response.choices[0].message.content
-    
-    parts = re.split(r'\n+|\s*\d+\.\s*|^\W+|\s*[•\-\*]\s*|,\s*', raw.strip())
-    
-    return [p.strip(" -•*") for p in parts if p.strip()]
-    # return [line.strip("0123456789. ").strip() for line in raw.strip().split("\n") if line.strip()]
+    return [line.strip("0123456789. ").strip() for line in raw.strip().split("\n") if line.strip()]
 
 with st.spinner("Generating Research Topics..."):
     questions = get_questions(prompt, api_key)
