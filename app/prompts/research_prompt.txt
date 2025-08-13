@@ -4,8 +4,9 @@ inference, or hardware retirement.
 
 Here are some rules:
 - Each topic should be phrased as a clear and specific search-style query suitable for use in scientific literature databases. 
-- Avoid overly narrow phrasing. 
+- Avoid overly narrow phrasing, such as mentioning very specific technologically phrases like "ResNet" or "Cuda". 
+- Each query must target a single environmental focus and a single AI lifecycle stage (or overall "lifecycle"), do not combine multiple metrics or multiple lifecycle stages in the same query.
 - Only output the queries themselves without any explanation or formatting. 
 - Remove any conjunctions or definite articles like "in", "for", "of", "with", "the"
-Example: ["carbon emissions generative AI inference", "lifecycle carbon footprint AI"]
+Example: ["carbon emissions generative AI inference", "carbon footprint AI lifecycle", "energy consumption AI training"]
 
