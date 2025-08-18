@@ -41,27 +41,10 @@ st.markdown("""
         .block-container {
             padding-top: 2rem;
         }
-        .info-card {
-            background-color: white;
-            border-radius: 0.75rem;
-            padding: 1.25rem;
-            box-shadow: 0 0.5rem 1.875rem rgba(0, 0, 0, 0.15);
-            text-align: left;
-            height: 11.25rem;
-            width: 90%;
-        }
-        .info-card h4 {
-            margin-bottom: 0.625rem;
-        }
-        .info-card p {
-            margin-bottom: 1.25rem;
-        }
 
-        /* Style Streamlit buttons */
+        /* Style back button */
         div.stButton > button:first-child {
-            /*background-color: #b3bfb2;*/
-            background-color: #a4dffc;
-            /*background-color: #66ccff;*/
+            background-color: #66ccff;
             color: black;
             border: none;
             border-radius: 0.5rem;
@@ -72,12 +55,14 @@ st.markdown("""
         div.stButton > button:first-child:hover {
             background-color: #4dc3ff;
         }
+
         .small-card {
             background-color: #6BD0FF; 
             border-radius: 0.625rem;
             padding: 1.25rem;
             height: 10rem;
         }
+
         .small-card h5 {
             margin: 0 0 0.313rem 0;
         }
@@ -85,21 +70,8 @@ st.markdown("""
         .small-card p {
             margin: 0 0 0 0; 
         }
-
-        /* Back button styling */
-        .stButton>button.back {
-            background-color: #b3bfb2;
-            /*background-color: #66ccff;*/
-            color: black;
-            border: none;
-            border-radius: 0.375rem;
-            padding: 0.375rem 0.938rem;
-            font-size: 1rem;
-        }
     </style>
 """, unsafe_allow_html=True)
-
-
 
 
 # Back button
@@ -109,7 +81,6 @@ with top_col1:
         st.switch_page("start_page.py")
 
 # Header + subheading
-#st.markdown('<h1 style="text-align: center;">Understanding AI’s Environmental Impact</h1>', unsafe_allow_html=True)
 st.markdown('<h1 style="text-align: center;">Research Overview</h1>', unsafe_allow_html=True)
 st.markdown('<h4 style="text-align: center;font-weight: normal;">Click to search and learn about the environmental aspects of AI usage that your organization can directly impact, focusing on energy and greenhouse gas emissions</h4>', unsafe_allow_html=True)
 st.markdown("<br>", unsafe_allow_html=True)
@@ -166,29 +137,32 @@ def change_button_style(
 
 cols = st.columns(3)
 
+# Display the questions
 for i, question in enumerate(questions[:6]):  # Limit to 6
     with cols[i % 3]:  # Distribute across 3 columns
         if st.button(question, key=f"question_{i}"):
-            st.session_state["GHG_selected_question"] = question
+            st.session_state["selected_question"] = question
             st.session_state["navigate_to_result"] = True
         change_button_style(question, bg_hex="#FFFFFF", txt_hex="black", height="7.5rem")
 
 
+# Check if the user has navigated to the result page
 if st.session_state.get("navigate_to_result"):
-    st.session_state.pop("GHG_user_question", None)
+    st.session_state.pop("user_question", None)
     st.session_state.pop("navigate_to_result")
     st.switch_page("research_result_page.py")
 
 
+# Section: User input for custom research topic
 input_box_col, _, _ = st.columns(3)
 
 with input_box_col:
     st.markdown('<p style="text-align: left; font-weight: bold; margin-bottom: -0.313rem; font-size: 1rem;">I have my own research topic</p>', unsafe_allow_html=True)
-    GHG_research_query = st.text_input(label="", placeholder="Enter your own research topic here")
+    research_query = st.text_input(label="", placeholder="Enter your own research topic here")
 
-if GHG_research_query:
-    st.session_state["GHG_user_question"] = GHG_research_query
-    st.session_state.pop("GHG_selected_question", None)  # clear previous selected topic
+if research_query:
+    st.session_state["user_question"] = research_query
+    st.session_state.pop("selected_question", None)  # clear previous selected topic
     st.switch_page("research_result_page.py")
 
 

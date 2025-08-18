@@ -36,19 +36,6 @@ st.markdown("""
         .block-container {
             padding-top: 2rem;
         }
-        .info-card {
-            background-color: white;
-            border-radius: 0.75rem;
-            padding: 1.25rem;
-            box-shadow: 0 0.125rem 0.625rem rgba(0,0,0,0.05);
-            text-align: left;
-        }
-        .info-card h4 {
-            margin-bottom: 0.625rem;
-        }
-        .info-card p {
-            margin-bottom: 1.25rem;
-        }
 
         /* Style Streamlit buttons */
         div.stButton > button:first-child {
@@ -76,7 +63,6 @@ st.markdown("""
             color: black !important;
         }
         
-
         button[disabled],
         div.stButton > button:disabled,
         div.stButton button[data-testid="baseButton-secondary"][disabled] {
@@ -85,16 +71,6 @@ st.markdown("""
             cursor: not-allowed !important;
             opacity: 0.7 !important;
             border: none !important;
-        }
-
-        .small-card {
-            background-color: #f9f9f9;
-            border-radius: 0.625rem;
-            padding: 1.25rem;
-            height: 10rem;
-        }
-        .small-card h5 {
-            margin: 0 0 0.625rem 0;
         }
 
         /* Custom styling for summary card */
@@ -191,7 +167,7 @@ top_col1, _, _ = st.columns([0.1, 0.8, 0.1])
 with top_col1:
     st.markdown("<div style='margin-top: 1.875rem;'></div>", unsafe_allow_html=True)
     if st.button("Back", key="back"):
-        st.session_state.pop("GHG_selected_question", None)
+        st.session_state.pop("selected_question", None)
         st.switch_page("research_topic_page.py")
 
 
@@ -202,16 +178,16 @@ research_topic_col, codecarbon_col = st.columns([3, 1])
 with research_topic_col:
     st.markdown("**Research topic**")
 
-    if "GHG_user_question" in st.session_state:
-        st.markdown("> **" + st.session_state["GHG_user_question"] + "**")
-    elif "GHG_selected_question" in st.session_state:
-        st.markdown("> **" + st.session_state["GHG_selected_question"] + "**")
+    if "user_question" in st.session_state:
+        st.markdown("> **" + st.session_state["user_question"] + "**")
+    elif "selected_question" in st.session_state:
+        st.markdown("> **" + st.session_state["selected_question"] + "**")
         
     st.markdown("**Research domains**")
     included_domains = ["ieeexplore.ieee.org", "springeropen.com", "scienceopen.com", "nature.com", "sciencedirect.com"]    # Peer-reviewed domains for Tavily search. "arxiv.org" not peer-reviewed.
     st.markdown("\n".join(f"- {domain}" for domain in included_domains))
 
-with codecarbon_col: # from Codecarbon emissions in kg Co2eq , energy in kWh, this will be converted
+with codecarbon_col: # from Codecarbon emissions in kg Co2eq, energy in kWh, this will be converted
     codecarbon_data = get_codecarbon_estimate("codecarbon_logs/emissions_31_july_summarization.csv")
     
     emissions = codecarbon_data["emissions"]
@@ -248,10 +224,7 @@ def cached_summarize(prompt_input):
     return llm.invoke(prompt_input)
 
 llm = ChatOpenAI (
-# model="gpt-4o",
-# model="gpt-4o-mini",
 model=llm_model,
-# temperature=0.7,       
 temperature = 0       # reduce randomness and wasted tokens
 )
 
@@ -377,16 +350,16 @@ graph.set_entry_point("search")
 # Graph: (search) → (extract) → (summarize) → END
 app = graph.compile()
 
-selected_question = st.session_state.get("GHG_user_question") or st.session_state.get("GHG_selected_question")
+selected_question = st.session_state.get("user_question") or st.session_state.get("selected_question")
 
 inputs = {"query": selected_question}
 
-if "GHG_result" not in st.session_state or st.session_state["GHG_result"]["query"] != selected_question:
+if "research_result" not in st.session_state or st.session_state["research_result"]["query"] != selected_question:
     result = app.invoke(inputs)  
-    st.session_state["GHG_result"] = result  
+    st.session_state["research_result"] = result  
     
 else:
-    result = st.session_state["GHG_result"]
+    result = st.session_state["research_result"]
 
 final_state = ResearchState(
     query = result["query"],
@@ -509,8 +482,6 @@ with st.sidebar:
         clear_disabled = True   
         st.success("Your Research Notebook has been cleared!")
 
-
-    
         
     # View notebook 
     st.markdown('<h2 style="text-align: left;"> Research Notebook </h2>', unsafe_allow_html=True)
