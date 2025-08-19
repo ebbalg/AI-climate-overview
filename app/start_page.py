@@ -19,13 +19,7 @@ set_background_gradient()
 st.markdown(body='<h1 style="text-align: center"> AI Footprint </h1>', unsafe_allow_html=True)
 
 space = st.empty()
-# space.markdown("<br><br><br>", unsafe_allow_html=True)
 
-# Explore, compare, and understand the environmental cost of AI.
-# Helping researchers and decision-makers understand AI’s environmental cost.
-# Making the climate cost of AI visible.
-# A platform for transparent insight into AI’s environmental cost.
-# Bringing transparency to the environmental footprint of AI.
 st.markdown(body='<h5 style="text-align: center"> Helping researchers and decision-makers understand AI’s environmental cost </h5>', unsafe_allow_html=True)
 
 space = st.empty()
@@ -57,15 +51,8 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# First setting
-# spacer, col1, gap, col2, spacer = st.columns([1, 1, 0.01, 1, 1])     
 
-# spacer, col1, col2, spacer = st.columns([1.5, 1, 1, 1.5])     # TEST for bigger screens, works (lite högerställd)
-# spacer, col1, gap, col2, spacer = st.columns([1.6, 1, 0.01, 1, 1.5]) 
-
-# spacer, col1, gap, col2, spacer = st.columns([1.7, 1, 0.5, 1, 1.8]) 
-
-# Tradeoff for smaller/bigger screens
+# Create columns for the buttons
 spacer, col1, gap, col2, spacer = st.columns([1.7, 1, 0.5, 1, 1.95]) 
 with col1: 
     project_query_option = st.button("**AI Use Case Explorer**")
@@ -91,7 +78,6 @@ def change_button_style(
     border= "none",
     width="10rem",
     height= "5rem",
-    #hover_bg="#F8F8F8",
     hover_txt="#000"
 ):
     htmlstr = f"""

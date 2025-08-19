@@ -21,23 +21,8 @@ st.markdown("""
         .block-container {
             padding-top: 2rem;
         }
-        .info-card {
-            background-color: white;
-            border-radius: 0.75rem;
-            padding: 1.25rem;
-            box-shadow: 0 0.125rem 0.625rem rgba(0,0,0,0.05);
-            text-align: left;
-            height: 11.25rem;
-            width: 90%;
-        }
-        .info-card h4 {
-            margin-bottom: 0.625rem;
-        }
-        .info-card p {
-            margin-bottom: 1.25rem;
-        }
 
-        /* Style Streamlit buttons */
+        /* Style back button */
         div.stButton > button:first-child {
             background-color: #66ccff;
             color: black;
@@ -49,26 +34,6 @@ st.markdown("""
         }
         div.stButton > button:first-child:hover {
             background-color: #4dc3ff;
-        }
-
-        .small-card {
-            background-color: #f9f9f9;
-            border-radius: 0.625rem;
-            padding: 1.25rem;
-            height: 10rem;
-        }
-        .small-card h5 {
-            margin: 0 0 0.625rem 0;
-        }
-
-        /* Back button styling */
-        .stButton>button.back {
-            background-color: #66ccff;
-            color: black;
-            border: none;
-            border-radius: 0.375rem;
-            padding: 0.375rem 0.938rem;
-            font-size: 1rem;
         }
 
         /* targets only the Analyze Climate Impact form submit button */
@@ -115,19 +80,12 @@ for key, value in defaults.items():
 if "form_submitted" not in st.session_state:
     st.session_state.form_submitted = False
     
+# Form for organization information, location and AI functionality
 with st.form("my_form"):
-
-    #st.markdown("**Describe your organzation**") #Describe your challenge
-    # st.write("**Fill in your  information**") #Summarize your organization's needs and we'll help you understand the AI solutions and their climate impact")
 
     categ_col1, categ_col2 = st.columns([1, 1])
 
     with categ_col1:
-        # organization = st.text_input(
-        #     label="Organization",
-        #     placeholder="Your organization name",
-        #     value=st.session_state.organization
-        # )
 
         org_people = st.number_input(
             label="How many people work in your organisation?",
@@ -150,17 +108,10 @@ with st.form("my_form"):
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    
-    # challenge = st.text_input(
-    #     label="What is your challenge?",
-    #     placeholder="Describe the challenge or issue your organization is facing where AI might help",
-    #     value=st.session_state.challenge
-    # )
-
 
     ai_options = ["Text generation", "Text classification", "Speech recognition", "Image generation", "Image classification", "Object detection", "Summarization", "Image captioning"] 
     ai_function = st.radio(
-    "Which AI functionality would you like to use for your project?",   #Which AI functionalities might help tackle this problem?
+    "Which AI functionality would you like to use for your project?",  
     ai_options,
     index=ai_options.index(st.session_state.ai_function or "Text generation"),
     horizontal=True,
@@ -185,9 +136,7 @@ with st.form("my_form"):
         submitted = st.form_submit_button("Analyze climate impact")
 
     if submitted:
-       # st.session_state.organization = organization
         st.session_state.location = location
-       # st.session_state.challenge = challenge
         st.session_state.org_people = org_people
         st.session_state.ai_function = ai_function
         st.session_state.form_submitted = True

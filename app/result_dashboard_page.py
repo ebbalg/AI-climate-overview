@@ -81,22 +81,6 @@ st.markdown("""
         width: 100%;
         box-shadow:0 2px 10px rgba(0,0,0,0.06);
         }
-        
-        .info-card {
-            background-color: white;
-            border-radius: 0.75rem;
-            padding: 1.25rem;
-            box-shadow: 0 0.125rem 0.625rem rgba(0,0,0,0.05);
-            text-align: left;
-            height: 11.25rem;
-            width: 90%;
-        }
-        .info-card h4 {
-            margin-bottom: 0.625rem;
-        }
-        .info-card p {
-            margin-bottom: 1.25rem;
-        }
 
         /* Style Streamlit buttons */
         div.stButton > button:first-child {
@@ -110,16 +94,6 @@ st.markdown("""
         }
         div.stButton > button:first-child:hover {
             background-color: #4dc3ff;
-        }
-
-        .small-card {
-            background-color: #f9f9f9;
-            border-radius: 0.625rem;
-            padding: 1.25rem;
-            height: 10rem;
-        }
-        .small-card h5 {
-            margin: 0 0 0.625rem 0;
         }
 
         /* Back button styling */
@@ -166,10 +140,6 @@ st.markdown(body='<h1 style="text-align: center"> AI Use Case Explorer </h1>', u
 space = st.empty()
 space.markdown("<br><br>", unsafe_allow_html=True)
 
-#with st.container(border=True):
-    #challenge = st.text_input("Your challenge", f"{st.session_state['challenge']}")
-    
-    #ai_function = st.text_input("Chosen functionality", f"{st.session_state['ai_function']}")
 
 
 def custom_card(label):
@@ -420,21 +390,10 @@ with col2:
         st.altair_chart(chart, use_container_width=True)
         st.markdown("<br>", unsafe_allow_html=True)
         
-        
-        # LeaderBoard
-        #st.markdown(body='<h3 style="text-align: left"> Comparing Energy Efficiency of Models </h3>', unsafe_allow_html=True)
-        
-        # with st.container(border=True):
         st.markdown(f"According to AI Energy Score, the most energy efficient model for **{ai_functionality_choice.lower()}** is **{best_model_obj['model']}**. \n \
             Compared to the average GPU energy on the AI Energy Score Leaderboard, this model is around **{compare_with_average(best_model_obj, avg_gpu_energy)}x** more energy efficient.", unsafe_allow_html=True)
-                
-                # <a href='https://huggingface.co/spaces/AIEnergyScore/Leaderboard'>[See the leaderboard here]</a>", unsafe_allow_html=True)
         
-        
-        # st.markdown("<br>", unsafe_allow_html=True)
-        # st.markdown(body='<h3 style="text-align: left"> Best Model vs Leaderboard Average </h3>', unsafe_allow_html=True)
-        # st.markdown("<br>", unsafe_allow_html=True)
-        
+
         comparison_data = get_comparison_df(best_model_obj, avg_gpu_energy, ai_functionality_choice)
         
         if ai_functionality_choice == "Text generation":
@@ -458,7 +417,6 @@ with col2:
                 x=alt.X("Energy (Wh):Q", title="Total Energy (Wh)"),
                 y=alt.Y("Model:N", sort="-x", title=""),
                 color=alt.Color("Model:N", legend=None),
-                # tooltip=["Model", "Energy (Wh)", "Class"]
                 tooltip=tooltip_fields
             )
             .properties(height=200, width=300, title='Comparison of energy usage between specific and average models')
@@ -580,10 +538,7 @@ with tab1:
     
     with col2:
         st.markdown(body='<h3 style="text-align: center"> Considerations </h3>', unsafe_allow_html=True)
-        # with st.container(border=True):
-            # with st.container(border=True):
-            #     st.markdown(f"With around 10 queries a day per user and {st.session_state['org_people']} users, your selected AI functionality might generate approximately {estimated_emissions*10*st.session_state['org_people']*365:.4g} g CO₂eq per year.")
-                
+   
         with st.container(border=True):
             st.markdown("""Running a model inference consumes computing power, so it uses electricity and produces CO₂ depending on the energy mix.
                         Key factors include the model and number of characters in the prompt, the hardware (GPU/TPU efficiency and utilization), and system overhead (power used by cooling, CPUs, networking, etc, often expressed by the data center's PUE - Power Usage Effectiveness). 
@@ -617,8 +572,6 @@ with tab2:
             'When using GenAI, the energy consumed and emission produce varies depending on the size of the model and the type of utilization, such as a simple text prompt or video generation.'
             '</p>', unsafe_allow_html = True)
     
-    
-
 
     with col4:
         with st.container(border=True, height=200):
@@ -629,17 +582,6 @@ with tab2:
             
             
 with tab3:
-    # st.subheader("About this service")
-    # # with st.container(border=True):
-    # st.markdown("""The AI Footprint aims to provide a simplified interface and playground for anyone that wants learn about the environmental impact of using an AI model for 
-    #             Here you can compare the impact of different models, locations for inference (data centers and cloud provider services) and get actionable ideas for how to use AI in the most energy and carbon efficient way possible. 
-    #             On this dashboard, we focus only on AI inference, i.e. the usage of an AI functionality. Other parts of the AI lifecycle are overlooked as they are harder for a individual or an organization to control, and can be harder to understand and trust.
-    #             """)
-
-    # st.markdown("""This project was developed as a part of AI Sweden's Public Innovation Summer Program 2025, a national initiative supporting innovation in the public sector and civil society through applied AI.""")
-    # st.markdown("<br>", unsafe_allow_html=True)
-    
-    #st.subheader("CodeCarbon Tracking of AI Use Case Explorer")
     st.markdown(body='<h3 style="text-align: left"> CodeCarbon Tracking of AI Use Case Explorer  </h3>', unsafe_allow_html=True)
 
     
@@ -657,28 +599,3 @@ with tab3:
     st.markdown(f'These values were calculated on the **{data_retrieval_time} Swedish time**, on an Apple M1 Pro and is just an estimation.')
     st.markdown("<br>", unsafe_allow_html=True)
     
-    # emissions_placeholder = st.empty()
-    
-    # emissions_log_file = "codecarbon_logs/emissions.csv"
-    
-    # if os.path.exists(emissions_log_file):
-    #     emissions_df = pd.read_csv(emissions_log_file)
-    #     # Show last CO₂ value
-    #     last_co2 = emissions_df["emissions"].iloc[-1]
-    #     emissions_placeholder.metric(
-    #         "Estimated CO₂ Emissions",
-    #         f"{last_co2:.4f} kg CO₂eq"
-    #     )
-    #    
-    #     
-    # else:
-    #     st.info("Tracking will appear here once measurements are logged.")
-    
-    # st.subheader("Contact")
-    # # st.markdown("check out this [link](%s)" % url)
-    
-    # url_ebba = "https://se.linkedin.com/in/ebba-lepp%C3%A4nen-gr%C3%B6ndal-910529170"
-    # url_kajsa = "https://www.linkedin.com/in/kajsa-lidin-6288ba205/"
-    # url_isabella = "https://se.linkedin.com/in/isabellafu001"
-    # st.markdown(f"""Do you have any questions or feedback? Reach out to us at 
-    #             [Kajsa Lidin]({url_kajsa}), [Ebba Leppänen Gröndal]({url_ebba}), or [Isabella Fu]({url_isabella}).""")
