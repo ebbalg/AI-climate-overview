@@ -53,13 +53,14 @@ uv add <dependency>
 
 This project uses:
 - Streamlit as the build tool and frontend framework
-- Langchain OpenAI for language model interaction
+- Langchain OpenAI for large language model interaction
 - Langchain Tavily Search and Tavily Extract API for retrieving web content
 - LangGraph for chaining multiple workflows
 - SQLite3 for simple data persistance 
 - Data from AI Energy Score from HuggingFace (https://huggingface.co/AIEnergyScore)
-- Data from Nowtricity (https://www.nowtricity.com/)
-- Data from Electricity Maps (https://www.electricitymaps.com/)
+- Historic location-specific carbon intensity data from Ember (https://ember-energy.org/)
+- Real-time carbon intensity data from Nowtricity (https://www.nowtricity.com/)
+- Real-time carbon intensity data from Electricity Maps (https://www.electricitymaps.com/)
 
 ## Project Structure
 
@@ -75,11 +76,10 @@ app/
 ├── project_query_page.py           # lets users input their organization’s AI use case for tailored analysis
 ├── result_dashboard_page.py        # shows outputs from the form filled in in the project_query_page
 ├── start_page.py                   # landing page
-├── data/                           # AI Energy Score csv files used for carbon or energy calculations, from AI Energy Score and Ember
+├── data/                           # AI Energy Score CSV files used for carbon or energy calculations, from AI Energy Score and Ember
 ├── scripts/
-│   └── energy_calculations.py      # calculates energy usage based on model and compute assumptions
+│   └── energy_calculations.py      # calculates energy usage based on model and location
 │   └── get_carbon_data.py          # Uses Nowtricity to pull and process emissions data per country or model
-│   └── tavily_research_openai.py   # defines the LangGraph and logic for searching, extracting, and summarizing using Tavily and OpenAI
 ```
 
 ## Authors:
