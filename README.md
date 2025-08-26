@@ -66,20 +66,24 @@ This project uses:
 
 ```
 app/
-├── prompts/                        # prompt files
-├── app.py                          # main app file
-├── energy_result_page.py           # displays energy-related summaries and sources based on the selected question
-├── energy_use_page.py              # lets users generate or input a research question related to energy usage
-├── general_overview_page.py        # provides general context on AI's environmental footprint
-├── GHG_emissions_page.py           # lets users generate or input a research question related to AI emissions
-├── GHG_result_page.py              # displays emissions-related summaries and sources based on the selected question
-├── project_query_page.py           # lets users input their organization’s AI use case for tailored analysis
-├── result_dashboard_page.py        # shows outputs from the form filled in in the project_query_page
+├── app.py                          # main app entry file
 ├── start_page.py                   # landing page
-├── data/                           # AI Energy Score CSV files used for carbon or energy calculations, from AI Energy Score and Ember
-├── scripts/
-│   └── energy_calculations.py      # calculates energy usage based on model and location
-│   └── get_carbon_data.py          # Uses Nowtricity to pull and process emissions data per country or model
+├── prompts/                        # prompt files
+├── about_page.py                   # page with information about the application
+├── project_query_page.py           # lets users input their organization’s AI use case for tailored analysis
+├── result_dashboard_page.py        # dashboard with calculations and visualizations based on the form filled in in the project_query_page
+├── research_topic_page.py          # generate topics for research with OpenAI
+├── research_result_page.py         # page with sources, research summaries, a research notebook field and a search field
+
+data/                               
+├── AI-energy-leaderboard/          # AI Energy Score CSV files 
+├── Ember                           # Ember CSV files from 2024-06 to 2025-06
+
+scripts/
+├── energy_calculations.py          # calculates energy usage based on model and location
+├── get_carbon_data.py              # uses Nowtricity to pull and process emissions data per country or model
+
+codecarbon_logs/                    # CSV files for estimations of environmental impact of API calls
 ```
 
 ## Authors:
